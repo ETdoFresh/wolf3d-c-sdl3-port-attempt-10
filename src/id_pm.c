@@ -57,24 +57,25 @@ void PM_Startup(void)
         Quit("PM_Startup: Cannot open VSWAP file");
     }
 
-    // Read header: 3 uint16_t values
-    //   [0] = idPage ("AB" as little-endian word -> 0x4241, but in practice
-    //         the original checks for 0x4942 "BI" or just validates it exists)
-    //   [1] = ChunksInFile (number of data pages)
-    //   [2] = PMSpriteStart
+    // Read header: 3 uint16_t values (Wolf3D VSWAP format)
+    //   [0] = ChunksInFile (number of data pages)
+    //   [1] = PMSpriteStart (index of first sprite page)
+    //   [2] = PMSoundStart  (index of first sound page)
     word header[3];
     if (fread(header, sizeof(word), 3, pm_file) != 3) {
         Quit("PM_Startup: Failed to read VSWAP header");
     }
 
-    ChunksInFile = header[1];
+    ChunksInFile = header[0];
     if (ChunksInFile == 0 || ChunksInFile > 4096) {
         Quit("PM_Startup: Invalid VSWAP page count");
     }
     pm_numpages = ChunksInFile;
+    PMSpriteStart = header[1];
+    PMSoundStart  = header[2];
 
-    // Read offset table: (ChunksInFile + 1) uint32_t values
-    size_t offset_count = (size_t)(ChunksInFile + 1);
+    // Read offset table: ChunksInFile uint32_t values
+    size_t offset_count = (size_t)ChunksInFile;
     pm_offsets = (longword *)malloc(offset_count * sizeof(longword));
     if (!pm_offsets) {
         Quit("PM_Startup: Out of memory for offset table");
@@ -92,30 +93,7 @@ void PM_Startup(void)
         Quit("PM_Startup: Failed to read length table");
     }
 
-    // Read PMSpriteStart and PMSoundStart from header[2]
-    // The original stored PMSpriteStart in header[2].
-    // PMSoundStart follows the sprites section; it is typically stored
-    // at offset (header_size + offset_table + length_table) position.
-    // In practice, the Wolf3d VSWAP format has:
-    //   header[2] = PMSpriteStart (index of first sprite page)
-    // PMSoundStart is derived by scanning lengths for first page
-    // with length == 0 after sprites (page with length 0 = separator).
-    // For simplicity, we set PMSoundStart to the page after sprites end.
-    PMSpriteStart = header[2];
-
-    // Find PMSoundStart: first page after PMSpriteStart where length == 0
-    // In WL6 files, a zero-length page separates sprites from sounds.
-    PMSoundStart = 0;
     word i;
-    for (i = PMSpriteStart; i < ChunksInFile; i++) {
-        if (pm_lengths[i] == 0) {
-            PMSoundStart = i + 1;
-            break;
-        }
-    }
-    if (PMSoundStart == 0) {
-        PMSoundStart = ChunksInFile; // fallback: no sounds
-    }
 
     // Allocate page list array
     PMPages = (PageListStruct *)calloc((size_t)ChunksInFile, sizeof(PageListStruct));
@@ -238,6 +216,14 @@ memptr PM_GetPage(int page)
     size_t bytes_read = fread(buf, 1, (size_t)len, pm_file);
     if (bytes_read != (size_t)len) {
         // Partial read is okay for the last page; zero-fill already done
+    }
+
+    if (getenv("WOLF3D_WALLDEBUG")) {
+        static int n = 0;
+        if (n++ < 20)
+            fprintf(stderr, "PM_GetPage page=%d offset=%lu len=%u read=%zu b0..3=%d,%d,%d,%d\n",
+                page, (unsigned long)file_offset, len, bytes_read,
+                buf[0], buf[1], buf[2], buf[3]);
     }
 
     // Store in cache

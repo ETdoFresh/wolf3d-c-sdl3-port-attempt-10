@@ -414,6 +414,21 @@ void ScalePost (void)
 	if (height <= 0)
 		return;
 
+	{
+		static int dbg = -1;
+		static int dbgcount = 0;
+		if (dbg < 0) dbg = SDL_getenv("WOLF3D_WALLDEBUG") ? 1 : 0;
+		if (dbg && dbgcount < 12) {
+			dbgcount++;
+			fprintf(stderr, "ScalePost postx=%u w=%u h=%d posttex=%u page=%p p0..7=%d,%d,%d,%d,%d,%d,%d,%d tex=%d,%d,%d,%d\n",
+				postx, postwidth, height, posttex, (void*)postpage,
+				postpage[0], postpage[1], postpage[2], postpage[3],
+				postpage[4], postpage[5], postpage[6], postpage[7],
+				postpage[posttex+0], postpage[posttex+16], postpage[posttex+32], postpage[posttex+48]);
+			fflush(stderr);
+		}
+	}
+
 	top = (viewheight / 2) - (height / 2);
 	bottom = top + height - 1;
 
