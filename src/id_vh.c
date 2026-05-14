@@ -259,7 +259,10 @@ void VW_ScreenToScreen(unsigned src, unsigned dst, int w, int h) { VL_ScreenToSc
 
 void LatchDrawPic(int x, int y, int picnum)
 {
-    VW_DrawPic(x, y, picnum);
+    // Status-bar / latch pic coordinates are given in 8-pixel units (the
+    // original drew them via byte offsets into planar VGA memory). Number
+    // and face pics step x by 1 per 8-pixel-wide pic, so scale to pixels.
+    VW_DrawPic(x * 8, y, picnum);
 }
 
 void FizzleFade(unsigned src, unsigned dst, int width, int height, int steps, boolean abortable)
