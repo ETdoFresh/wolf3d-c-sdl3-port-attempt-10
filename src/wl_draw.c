@@ -393,6 +393,7 @@ byte		*postpage;		// texture data pointer from PM_GetPage
 unsigned	posttex;		// texture column byte offset (0, 64, 128, ..., 4032)
 unsigned	postx;
 unsigned	postwidth;
+long		g_scalepost_cols;	// debug: columns drawn this frame
 
 void ScalePost (void)
 {
@@ -409,25 +410,15 @@ void ScalePost (void)
 	if (!postpage)
 		return;
 
-	height = wallheight[postx];
+	// wallheight[] holds the raw projection value; the on-screen pixel
+	// height is that value >> 2 (matches the original compiled scalers,
+	// where a sprite of raw height h draws (h>>3)*2 == h>>2 pixels).
+	height = wallheight[postx] >> 2;
 
 	if (height <= 0)
 		return;
 
-	{
-		static int dbg = -1;
-		static int dbgcount = 0;
-		if (dbg < 0) dbg = SDL_getenv("WOLF3D_WALLDEBUG") ? 1 : 0;
-		if (dbg && dbgcount < 12) {
-			dbgcount++;
-			fprintf(stderr, "ScalePost postx=%u w=%u h=%d posttex=%u page=%p p0..7=%d,%d,%d,%d,%d,%d,%d,%d tex=%d,%d,%d,%d\n",
-				postx, postwidth, height, posttex, (void*)postpage,
-				postpage[0], postpage[1], postpage[2], postpage[3],
-				postpage[4], postpage[5], postpage[6], postpage[7],
-				postpage[posttex+0], postpage[posttex+16], postpage[posttex+32], postpage[posttex+48]);
-			fflush(stderr);
-		}
-	}
+	g_scalepost_cols += postwidth;
 
 	top = (viewheight / 2) - (height / 2);
 	bottom = top + height - 1;
@@ -1434,6 +1425,27 @@ void WallRefresh (void)
 	lastside = -1;			// the first pixel is on a new wall
 	AsmRefresh ();
 	ScalePost ();			// no more optimization on last post
+
+	{
+		static int dbg = -1;
+		static int fc = 0;
+		if (dbg < 0) dbg = SDL_getenv("WOLF3D_WALLDEBUG") ? 1 : 0;
+		if (dbg && (fc++ % 70) == 0) {
+			int mn = 999999, mx = 0, zero = 0;
+			long sum = 0;
+			for (int i = 0; i < viewwidth; i++) {
+				unsigned h = wallheight[i];
+				if (h == 0) zero++;
+				if ((int)h < mn) mn = h;
+				if ((int)h > mx) mx = h;
+				sum += h;
+			}
+			fprintf(stderr, "WallRefresh vw=%d vh=%d wallheight min=%d max=%d avg=%ld zero=%d drawncols=%ld\n",
+				viewwidth, viewheight, mn, mx, sum / (viewwidth ? viewwidth : 1), zero, g_scalepost_cols);
+			fflush(stderr);
+		}
+	}
+	g_scalepost_cols = 0;
 }
 
 //==========================================================================
