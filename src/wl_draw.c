@@ -393,8 +393,6 @@ byte		*postpage;		// texture data pointer from PM_GetPage
 unsigned	posttex;		// texture column byte offset (0, 64, 128, ..., 4032)
 unsigned	postx;
 unsigned	postwidth;
-long		g_scalepost_cols;	// debug: columns drawn this frame
-int		g_dumpframe;		// debug: dump per-column info this frame
 
 void ScalePost (void)
 {
@@ -418,15 +416,6 @@ void ScalePost (void)
 
 	if (height <= 0)
 		return;
-
-	g_scalepost_cols += postwidth;
-
-	if (g_dumpframe && postx >= 50 && postx <= 110) {
-		fprintf(stderr, "  col postx=%u w=%u h=%d posttex=%u page=%p tx0,16,32,48=%d,%d,%d,%d\n",
-			postx, postwidth, height, posttex, (void*)postpage,
-			postpage[posttex+0], postpage[posttex+16], postpage[posttex+32], postpage[posttex+48]);
-		fflush(stderr);
-	}
 
 	top = (viewheight / 2) - (height / 2);
 	bottom = top + height - 1;
@@ -1431,35 +1420,8 @@ void WallRefresh (void)
 	ypartialup = TILEGLOBAL-ypartialdown;
 
 	lastside = -1;			// the first pixel is on a new wall
-	{
-		static int dbg = -1;
-		static int fc0 = 0;
-		if (dbg < 0) dbg = SDL_getenv("WOLF3D_WALLDEBUG") ? 1 : 0;
-		g_dumpframe = (dbg && (fc0++ % 70) == 0) ? 1 : 0;
-	}
 	AsmRefresh ();
 	ScalePost ();			// no more optimization on last post
-
-	{
-		static int dbg = -1;
-		static int fc = 0;
-		if (dbg < 0) dbg = SDL_getenv("WOLF3D_WALLDEBUG") ? 1 : 0;
-		if (dbg && (fc++ % 70) == 0) {
-			int mn = 999999, mx = 0, zero = 0;
-			long sum = 0;
-			for (int i = 0; i < viewwidth; i++) {
-				unsigned h = wallheight[i];
-				if (h == 0) zero++;
-				if ((int)h < mn) mn = h;
-				if ((int)h > mx) mx = h;
-				sum += h;
-			}
-			fprintf(stderr, "WallRefresh vw=%d vh=%d wallheight min=%d max=%d avg=%ld zero=%d drawncols=%ld\n",
-				viewwidth, viewheight, mn, mx, sum / (viewwidth ? viewwidth : 1), zero, g_scalepost_cols);
-			fflush(stderr);
-		}
-	}
-	g_scalepost_cols = 0;
 }
 
 //==========================================================================

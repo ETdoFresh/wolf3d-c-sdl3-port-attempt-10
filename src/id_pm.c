@@ -218,14 +218,6 @@ memptr PM_GetPage(int page)
         // Partial read is okay for the last page; zero-fill already done
     }
 
-    if (getenv("WOLF3D_WALLDEBUG")) {
-        static int n = 0;
-        if (n++ < 20)
-            fprintf(stderr, "PM_GetPage page=%d offset=%lu len=%u read=%zu b0..3=%d,%d,%d,%d\n",
-                page, (unsigned long)file_offset, len, bytes_read,
-                buf[0], buf[1], buf[2], buf[3]);
-    }
-
     // Store in cache
     pm_cache[page] = buf;
     PMPages[page].mainPage = page;
