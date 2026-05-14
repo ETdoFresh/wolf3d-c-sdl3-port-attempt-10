@@ -1025,7 +1025,10 @@ void PlayDemo(int demonumber)
     NewGame(1, 0);
     gamestate.mapon = *demoptr++;
     gamestate.difficulty = gd_hard;
-    length = *((unsigned *)demoptr)++;
+    // Demo header: 1 byte mapon, 2-byte word length, 1 unused byte.
+    // length counts the whole demo lump including this 4-byte header.
+    length = *((word *)demoptr);
+    demoptr += 2;
     demoptr++;
     lastdemoptr = demoptr - 4 + length;
 

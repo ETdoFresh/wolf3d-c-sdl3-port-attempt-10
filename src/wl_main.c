@@ -69,6 +69,7 @@ int             minheightdiv;
 
 boolean         startgame, loadedgame, virtualreality;
 int             mouseadjustment;
+int             LastDemo;          // attract-mode demo rotation index
 
 char            configname[13] = "CONFIG.";
 
@@ -1070,6 +1071,14 @@ void DemoLoop(void)
             VW_UpdateScreen();
             VW_FadeIn();
             if (IN_UserInput(TickBase * 10))
+                break;
+//
+// demo
+//
+            PlayDemo(LastDemo++ % 4);
+            if (LastDemo >= 4)
+                LastDemo = 0;
+            if (playstate == ex_abort)
                 break;
         }
 

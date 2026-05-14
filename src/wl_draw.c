@@ -153,12 +153,15 @@ fixed FixedByFrac (fixed a, fixed b)
 //
 // figure sign of result
 //
+// b is passed in signed-magnitude form: the magnitude is in the low 16
+// bits and the sign is bit 31 (the sintable/costable builder ORs in
+// 0x80000000 for negative entries).  It must NOT be negated as a two's
+// complement number - that yields 0x80000000-mag instead of the magnitude.
+//
 	sign = 0;
-	if (b < 0)
-	{
-		b = -b;
+	if ((unsigned long)b & 0x80000000UL)
 		sign ^= 1;
-	}
+	b &= 0xFFFF;
 
 	if (a < 0)
 	{
@@ -1293,9 +1296,9 @@ static void AsmRefresh (void)
 			// to see if we've crossed a y tile boundary
 			//
 			if (ytilestep == -1 && (yintercept >> 16) <= ytile)
-				goto horizcheck;
+				goto horizentry;
 			if (ytilestep == 1 && (yintercept >> 16) >= ytile)
-				goto horizcheck;
+				goto horizentry;
 
 		vertcheck:
 			//
@@ -1392,6 +1395,7 @@ static void AsmRefresh (void)
 			spotvis[(unsigned)xintercept >> 16][ytile] = 1;
 			ytile += ytilestep;
 			xintercept += xstep;
+			goto horizcheck;
 		} while (1);
 	}
 }

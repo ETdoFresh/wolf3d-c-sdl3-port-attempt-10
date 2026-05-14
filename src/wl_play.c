@@ -9,6 +9,7 @@
 //   - Removed peek() BIOS call for virtualreality helmet angle
 //   - Uses IN_ReadControl for SDL event processing
 
+#include <SDL3/SDL.h>
 #include "id_heads.h"
 #include "wl_def.h"
 
@@ -475,21 +476,31 @@ void PollControls (void)
 //
 // get timing info for last frame
 //
-	if (demoplayback)
+	if (demoplayback || demorecord)
 	{
-		while (TimeCount<lasttimecount+DEMOTICS)
-			SD_Poll();
-		TimeCount = lasttimecount + DEMOTICS;
-		lasttimecount += DEMOTICS;
-		tics = DEMOTICS;
-	}
-	else if (demorecord)			// demo recording and playback needs
-	{								// to be constant
 	//
-	// take DEMOTICS or more tics, and modify Timecount to reflect time taken
+	// demo recording and playback needs the tic count to be constant.
+	// The original busy-waited on TimeCount, which the timer ISR advanced
+	// independently; this port advances TimeCount from CalcTics, which is
+	// not called here, so throttle to real time directly instead (otherwise
+	// the busy-wait would spin forever and hang the demo).
 	//
-		while (TimeCount<lasttimecount+DEMOTICS)
-			SD_Poll();
+		static Uint32 demo_last_ticks = 0;
+		Uint32 now = SDL_GetTicks();
+		Uint32 target = 1000u * DEMOTICS / 70u;		// ms per demo frame
+		Uint32 elapsed;
+
+		if (demo_last_ticks == 0)
+			demo_last_ticks = now;
+		elapsed = now - demo_last_ticks;
+		if (elapsed < target)
+		{
+			SDL_Delay(target - elapsed);
+			now = SDL_GetTicks();
+		}
+		demo_last_ticks = now;
+		SD_Poll();
+
 		TimeCount = lasttimecount + DEMOTICS;
 		lasttimecount += DEMOTICS;
 		tics = DEMOTICS;

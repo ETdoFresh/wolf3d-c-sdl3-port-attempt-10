@@ -609,20 +609,20 @@ void VL_Present(void)
     SDL_RenderTexture(vl_renderer, vl_texture, NULL, NULL);
     SDL_RenderPresent(vl_renderer);
 
-    // Auto-screenshot for self-verification (only with WOLF3D_SCREENSHOT env)
+    // Auto-screenshot for self-verification (only with WOLF3D_SCREENSHOT env).
+    // Dumps the indexed framebuffer straight to disk on a fixed frame
+    // interval, so verification never has to fight for the OS foreground.
     vl_frame_count++;
     if (vl_screenshot_enabled < 0)
         vl_screenshot_enabled = SDL_getenv("WOLF3D_SCREENSHOT") ? 1 : 0;
     if (vl_screenshot_enabled) {
-        static const int frames[] = {5, 30, 100, 300};
-        for (int i = 0; i < 4; i++) {
-            if (vl_frame_count == frames[i]) {
-                char path[64];
-                snprintf(path, sizeof(path), "screenshot_frame_%d.bmp", vl_frame_count);
-                VL_Screenshot(path);
-                printf("Screenshot saved to %s\n", path);
-                fflush(stdout);
-            }
+        static int shot_index = 0;
+        if (vl_frame_count % 18 == 0 && shot_index < 400) {
+            char path[64];
+            snprintf(path, sizeof(path), "autoshot_%03d.bmp", shot_index++);
+            VL_Screenshot(path);
+            printf("Screenshot saved to %s\n", path);
+            fflush(stdout);
         }
     }
 }
