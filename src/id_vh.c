@@ -185,14 +185,16 @@ void VW_Plot(int x, int y, int color)
     VL_Plot((unsigned)x, (unsigned)y, (byte)color);
 }
 
-void VW_Hlin(int x, int y, int width, int color)
+// Original Wolf3D convention: VW_Hlin(x1, x2, y) draws an inclusive
+// horizontal span; VW_Vlin(y1, y2, x) draws an inclusive vertical span.
+void VW_Hlin(int x1, int x2, int y, int color)
 {
-    VL_Hlin((unsigned)x, (unsigned)y, (unsigned)width, (byte)color);
+    VL_Hlin((unsigned)x1, (unsigned)y, (unsigned)(x2 - x1 + 1), (byte)color);
 }
 
-void VW_Vlin(int x, int y, int height, int color)
+void VW_Vlin(int y1, int y2, int x, int color)
 {
-    VL_Vlin((unsigned)x, (unsigned)y, (unsigned)height, (byte)color);
+    VL_Vlin((unsigned)x, (unsigned)y1, (unsigned)(y2 - y1 + 1), (byte)color);
 }
 
 // ========================================================================
@@ -231,8 +233,8 @@ void VW_UpdateScreen(void)
 
 void VWB_Bar(int x, int y, int w, int h, int color) { VW_Bar(x, y, w, h, color); }
 void VWB_Plot(int x, int y, int color) { VW_Plot(x, y, color); }
-void VWB_Hlin(int x, int y, int w, int color) { VW_Hlin(x, y, w, color); }
-void VWB_Vlin(int x, int y, int h, int color) { VW_Vlin(x, y, h, color); }
+void VWB_Hlin(int x1, int x2, int y, int color) { VW_Hlin(x1, x2, y, color); }
+void VWB_Vlin(int y1, int y2, int x, int color) { VW_Vlin(y1, y2, x, color); }
 void VWB_DrawPic(int x, int y, int picnum) { VW_DrawPic(x, y, picnum); }
 void VWB_DrawPropString(char *str) { VW_DrawPropString(str); }
 void VWB_DrawTile8(int x, int y, int tile) { VW_DrawTile8(x, y, tile); }

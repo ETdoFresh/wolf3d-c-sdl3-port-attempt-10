@@ -2,6 +2,7 @@
 goalDir/
 build/
 build-debug/
+build-asan/
 original/
 tmp/
 *.bmp

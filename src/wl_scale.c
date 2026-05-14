@@ -280,7 +280,10 @@ static byte *ReadSpriteColumn(t_compshape *shape, int col)
         int end   = endpix_x2 >> 1;
 
         for (int i = start; i < end && i < 64; i++)
-            pixels[i] = linesrc[top + i];
+        {
+            if (i >= 0 && top + i < PMPageSize)
+                pixels[i] = linesrc[top + i];
+        }
     }
 
     return pixels;
@@ -305,8 +308,11 @@ void ScaleShape(int xcenter, int shapenum, unsigned height)
 {
     t_compshape  *shape;
     scaleentry_t *comptable;
-    unsigned      scale, srcx, stopx;
-    unsigned     *cmdptr;
+    unsigned      scale;
+    int           srcx, stopx;          // signed: leftpix may be 0, srcx
+                                        // decrements past it before the
+                                        // loop test (unsigned would wrap
+                                        // and index width[] out of bounds)
     boolean       leftvis, rightvis;
     int           slinex, slinewidth;
 
@@ -326,11 +332,9 @@ void ScaleShape(int xcenter, int shapenum, unsigned height)
     srcx = 32;
     slinex = xcenter;
     stopx = shape->leftpix;
-    cmdptr = &shape->dataofs[31 - stopx];
 
     while (--srcx >= stopx && slinex > 0)
     {
-        (void)*cmdptr--;  // advance command pointer (used by original ScaleLine)
         slinewidth = comptable->width[srcx];
         if (!slinewidth)
             continue;
@@ -422,20 +426,13 @@ void ScaleShape(int xcenter, int shapenum, unsigned height)
     slinex = xcenter;
     stopx = shape->rightpix;
     if (shape->leftpix < 31)
-    {
         srcx = 31;
-        cmdptr = &shape->dataofs[32 - shape->leftpix];
-    }
     else
-    {
         srcx = shape->leftpix - 1;
-        cmdptr = &shape->dataofs[0];
-    }
     slinewidth = 0;
 
     while (++srcx <= stopx && (slinex += slinewidth) < viewwidth)
     {
-        (void)*cmdptr++;  // advance command pointer (used by original ScaleLine)
         slinewidth = comptable->width[srcx];
         if (!slinewidth)
             continue;
@@ -535,7 +532,8 @@ void SimpleScaleShape(int xcenter, int shapenum, unsigned height)
 {
     t_compshape  *shape;
     scaleentry_t *comptable;
-    unsigned      scale, srcx, stopx;
+    unsigned      scale;
+    int           srcx, stopx;          // signed: see ScaleShape note
     int           slinex, slinewidth;
 
     shape = (t_compshape *)PM_GetSpritePage(shapenum);
