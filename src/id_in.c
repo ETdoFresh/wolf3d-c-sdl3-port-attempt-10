@@ -131,6 +131,20 @@ static ScanCode SDL_ScanCode_to_PC(SDL_Scancode sc)
     case SDL_SCANCODE_F11:          return 0x57;
     case SDL_SCANCODE_F12:          return 0x58;
     case SDL_SCANCODE_PAUSE:        return 0x59;
+    // Numeric keypad maps to the same PC scancodes as the arrow/nav cluster
+    // (matches DOS Wolf3D behaviour with NumLock off).
+    case SDL_SCANCODE_KP_7:         return 0x47;
+    case SDL_SCANCODE_KP_8:         return 0x48;
+    case SDL_SCANCODE_KP_9:         return 0x49;
+    case SDL_SCANCODE_KP_4:         return 0x4B;
+    case SDL_SCANCODE_KP_6:         return 0x4D;
+    case SDL_SCANCODE_KP_1:         return 0x4F;
+    case SDL_SCANCODE_KP_2:         return 0x50;
+    case SDL_SCANCODE_KP_3:         return 0x51;
+    case SDL_SCANCODE_KP_0:         return 0x52;
+    case SDL_SCANCODE_KP_PERIOD:    return 0x53;
+    case SDL_SCANCODE_KP_ENTER:     return 0x1C;
+    case SDL_SCANCODE_KP_DIVIDE:    return 0x35;
     default:                        return sc_None;
     }
 }
@@ -206,6 +220,10 @@ static void IN_PumpEvents(void)
         switch (event.type) {
         case SDL_EVENT_KEY_DOWN: {
             ScanCode pc = SDL_ScanCode_to_PC(event.key.scancode);
+            if (SDL_getenv("WOLF3D_INDEBUG")) {
+                fprintf(stderr, "KEYDOWN sdlscan=%d -> pc=%d\n", (int)event.key.scancode, (int)pc);
+                fflush(stderr);
+            }
             if (pc != sc_None && pc < NumCodes) {
                 Keyboard[pc] = true;
                 LastScan = pc;
