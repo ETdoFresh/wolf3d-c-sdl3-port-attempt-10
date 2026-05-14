@@ -1,0 +1,12 @@
+
+goalDir/
+build/
+build-debug/
+original/
+tmp/
+*.bmp
+*.png
+*.jpg
+*.log
+crash*.log
+gameplay*.*
