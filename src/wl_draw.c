@@ -176,11 +176,12 @@ fixed FixedByFrac (fixed a, fixed b)
 // b is treated as a 16 bit fraction (low word)
 // result is 16.16 fixed point
 //
-	result = (a >> 16) * (b & 0xFFFF);	// integer part of a * fraction b
-
-	// For the fractional cross product, we shift right by 16 to get
-	// the contribution to the integer part of the result
-	result += ((a & 0xFFFF) * (b & 0xFFFF)) >> 16;
+// Both a and b are now non-negative.  The product a*(b&0xFFFF) can reach
+// ~2^47, and even the (a&0xFFFF)*(b&0xFFFF) cross term reaches ~2^32, which
+// overflows a signed 32-bit int and corrupts the sign.  Compute the whole
+// thing in 64 bits, then shift down by the 16-bit fraction of b.
+//
+	result = (long)(((int64_t)a * (b & 0xFFFF)) >> 16);
 
 	if (sign)
 		result = -result;
