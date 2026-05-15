@@ -1322,7 +1322,7 @@ static void AsmRefresh (void)
 					yintbuf = yintercept + (ystep >> 1);
 					if ((yintbuf >> 16) != (yintercept >> 16))
 						goto passvert;
-					if ((unsigned)yintbuf < doorposition[tilehit & 0x7f])
+					if ((word)yintbuf < doorposition[tilehit & 0x7f])
 						goto passvert;
 					yintercept = yintbuf;
 					xintercept = 0x8000 + ((long)xtile << TILESHIFT);
@@ -1376,7 +1376,7 @@ static void AsmRefresh (void)
 					xintbuf = xintercept + (xstep >> 1);
 					if ((xintbuf >> 16) != (xintercept >> 16))
 						goto passhoriz;
-					if ((unsigned)xintbuf < doorposition[tilehit & 0x7f])
+					if ((word)xintbuf < doorposition[tilehit & 0x7f])
 						goto passhoriz;
 					xintercept = xintbuf;
 					yintercept = 0x8000 + ((long)ytile << TILESHIFT);

@@ -448,7 +448,7 @@ void PollJoystickMove (void)
 		if (joyy > 64)
 			controly += BASEMOVE*tics;
 		else if (joyy < -64)
-			controly -= RUNMOVE*tics;
+			controly -= BASEMOVE*tics;
 	}
 }
 
@@ -1406,11 +1406,11 @@ void PlayLoop (void)
 		madenoise = false;
 
 		MoveDoors ();
-				MovePWalls ();
-		
+		MovePWalls ();
+
 		for (obj = player;obj;obj = obj->next)
 			DoActor (obj);
-		
+
 		UpdatePaletteShifts ();
 
 		ThreeDRefresh ();

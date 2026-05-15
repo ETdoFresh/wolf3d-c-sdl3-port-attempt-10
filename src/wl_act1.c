@@ -351,7 +351,7 @@ void InitDoorList (void)
 void SpawnDoor (int tilex, int tiley, boolean vertical, int lock)
 {
 	int areanumber;
-	unsigned	*map;
+	word	*map;
 
 	if (doornum==64)
 		Quit ("64+ doors on level!");
@@ -555,7 +555,7 @@ void DoorOpen (int door)
 void DoorOpening (int door)
 {
 	int		area1,area2;
-	unsigned	*map;
+	word	*map;
 	long	position;
 
 	position = doorposition[door];
@@ -581,12 +581,6 @@ void DoorOpening (int door)
 
 		area1 -= AREATILE;
 		area2 -= AREATILE;
-
-		if (area1 < 0 || area1 >= NUMAREAS || area2 < 0 || area2 >= NUMAREAS)
-		{
-			doorposition[door] = 1;
-			return;
-		}
 
 		areaconnect[area1][area2]++;
 		areaconnect[area2][area1]++;
@@ -630,7 +624,7 @@ void DoorClosing (int door)
 	int		area1,area2;
 	long	position;
 	int		tilex,tiley;
-	unsigned	*map;
+	word	*map;
 
 	tilex = doorobjlist[door].tilex;
 	tiley = doorobjlist[door].tiley;

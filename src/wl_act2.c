@@ -808,7 +808,7 @@ statetype s_gretelshoot8 	= {false,SPR_GRETEL_SHOOT1,10,NULL,NULL,&s_gretelchase
 
 void SpawnStand (enemy_t which, int tilex, int tiley, int dir)
 {
-	unsigned	*map,tile;
+	word	*map; unsigned tile;
 
 	switch (which)
 	{
@@ -896,7 +896,7 @@ void SpawnDeadGuard (int tilex, int tiley)
 
 void SpawnBoss (int tilex, int tiley)
 {
-	unsigned	*map,tile;
+	word	*map; unsigned tile;
 
 	SpawnNewObj (tilex,tiley,&s_bossstand);
 	new->speed = SPDPATROL;
@@ -919,7 +919,7 @@ void SpawnBoss (int tilex, int tiley)
 
 void SpawnGretel (int tilex, int tiley)
 {
-	unsigned	*map,tile;
+	word	*map; unsigned tile;
 
 	SpawnNewObj (tilex,tiley,&s_gretelstand);
 	new->speed = SPDPATROL;
@@ -1119,7 +1119,7 @@ void A_DeathScream (objtype *ob)
 
 void SpawnGhosts (int which, int tilex, int tiley)
 {
-	unsigned	*map,tile;
+	word	*map; unsigned tile;
 
 	switch(which)
 	{
@@ -1337,7 +1337,7 @@ statetype s_fatshoot6 	= {false,SPR_FAT_SHOOT4,10,NULL,T_Shoot,&s_fatchase1};
 
 void SpawnSchabbs (int tilex, int tiley)
 {
-	unsigned	*map,tile;
+	word	*map; unsigned tile;
 
 	if (DigiMode != sds_Off)
 		s_schabbdie2.tictime = 140;
@@ -1366,7 +1366,7 @@ void SpawnSchabbs (int tilex, int tiley)
 
 void SpawnGift (int tilex, int tiley)
 {
-	unsigned	*map,tile;
+	word	*map; unsigned tile;
 
 	if (DigiMode != sds_Off)
 	  s_giftdie2.tictime = 140;
@@ -1395,7 +1395,7 @@ void SpawnGift (int tilex, int tiley)
 
 void SpawnFat (int tilex, int tiley)
 {
-	unsigned	*map,tile;
+	word	*map; unsigned tile;
 
 	if (DigiMode != sds_Off)
 	  s_fatdie2.tictime = 140;
@@ -1951,7 +1951,7 @@ statetype s_hitlershoot6 	= {false,SPR_HITLER_SHOOT2,10,NULL,T_Shoot,&s_hitlerch
 
 void SpawnFakeHitler (int tilex, int tiley)
 {
-	unsigned	*map,tile;
+	word	*map; unsigned tile;
 
 
 	if (DigiMode != sds_Off)
@@ -1981,7 +1981,7 @@ void SpawnFakeHitler (int tilex, int tiley)
 
 void SpawnHitler (int tilex, int tiley)
 {
-	unsigned	*map,tile;
+	word	*map; unsigned tile;
 
 	if (DigiMode != sds_Off)
 		s_hitlerdie2.tictime = 140;
@@ -2011,7 +2011,7 @@ void SpawnHitler (int tilex, int tiley)
 
 void A_HitlerMorph (objtype *ob)
 {
-	unsigned	*map,tile,hitpoints[4]={500,700,800,900};
+	word	*map; unsigned tile,hitpoints[4]={500,700,800,900};
 
 
 	SpawnNewObj (ob->tilex,ob->tiley,&s_hitlerchase1);
@@ -2723,7 +2723,7 @@ statetype s_deathcam = {false,0,0,NULL,NULL,NULL};
 
 void SpawnBJVictory (void)
 {
-	unsigned	*map,tile;
+	word	*map; unsigned tile;
 
 	SpawnNewObj (player->tilex,player->tiley+1,&s_bjrun1);
 	new->x = player->x;

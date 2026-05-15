@@ -62,6 +62,11 @@ static struct {
     int active;
 } channels[MAX_CHANNELS];
 
+// Number of the sound most recently started.  The original SD_SoundPlaying()
+// returns this enum value (not a boolean) while a sound is active, so callers
+// like UpdateFace() can test SD_SoundPlaying() == GETGATLINGSND.
+static int SoundNumber = 0;
+
 // ========================================================================
 // Startup / Shutdown
 // ========================================================================
@@ -231,6 +236,7 @@ int SD_PlaySound(soundnames sound)
                 int ch = SD_PlayRaw(sfx->data, data_len, sfx->hertz);
                 if (ch >= 0) {
                     DigiPlaying = true;
+                    SoundNumber = sound;
                     return sound + 1;
                 }
             }
@@ -274,10 +280,13 @@ void SD_WaitSoundDone(void)
 
 int SD_SoundPlaying(void)
 {
+    int playing = 0;
     for (int ch = 0; ch < MAX_CHANNELS; ch++) {
         if (channels[ch].active && channels[ch].stream) {
-            if (SDL_GetAudioStreamAvailable(channels[ch].stream) > 0)
-                return 1;
+            if (SDL_GetAudioStreamAvailable(channels[ch].stream) > 0) {
+                playing = 1;
+                continue;
+            }
             // Stream finished
             SDL_UnbindAudioStream(channels[ch].stream);
             SDL_DestroyAudioStream(channels[ch].stream);
@@ -285,7 +294,8 @@ int SD_SoundPlaying(void)
             channels[ch].active = 0;
         }
     }
-    return 0;
+    // Match the original: return the active sound's number, not a boolean.
+    return playing ? SoundNumber : 0;
 }
 
 // ========================================================================
