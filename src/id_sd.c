@@ -598,7 +598,13 @@ void SD_Poll(void)
     }
 
     // Process OPL3 music events (sqHack pattern from original ID_SD.C)
+    static int dbg_music_dump = -1;
+    if (dbg_music_dump < 0)
+        dbg_music_dump = SDL_getenv("WOLF3D_INDEBUG") ? 1 : 0;
+    static long dbg_evt_count = 0;
+    static Uint64 dbg_start_ms = 0;
     if (music_active && music_len > 0) {
+        if (dbg_music_dump && dbg_start_ms == 0) dbg_start_ms = SDL_GetTicks();
         while (music_len && (music_next_tick <= music_time)) {
             word w = *music_ptr++;
             music_next_tick += *music_ptr++;   // cumulative: add delay to last fire time
@@ -606,6 +612,19 @@ void SD_Poll(void)
             byte val = (w >> 8) & 0xFF;
             OPL3_WriteReg(&opl3, reg, val);
             music_len -= 4;
+            if (dbg_music_dump) {
+                dbg_evt_count++;
+                if (dbg_evt_count == 1)
+                    fprintf(stderr, "MUSIC start first-event at ms=%llu\n",
+                            (unsigned long long)SDL_GetTicks());
+                if ((dbg_evt_count & 0x1FF) == 0) {
+                    Uint64 dt = SDL_GetTicks() - dbg_start_ms;
+                    fprintf(stderr, "MUSIC evt=%ld dt_ms=%llu rate_per_sec=%.1f music_time=%ld\n",
+                            dbg_evt_count, (unsigned long long)dt,
+                            dt ? (double)dbg_evt_count * 1000.0 / dt : 0.0,
+                            (long)music_time);
+                }
+            }
         }
         music_time += music_ticks;
         if (!music_len) {
