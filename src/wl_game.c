@@ -208,7 +208,7 @@ void ClearMemory(void)
 
 void ScanInfoPlane(void)
 {
-    unsigned    x, y, i, j;
+    unsigned    x, y;
     int         tile;
     word        *start;
 
@@ -590,7 +590,7 @@ void SetupGameLevel(void)
 {
     int       x, y, i;
     word      *map;
-    unsigned  tile, spot;
+    unsigned  tile;
 
 
     if (!loadedgame)
@@ -849,7 +849,7 @@ void DrawPlayBorder(void)
 
 void DrawPlayScreen(void)
 {
-    int       i, j, p, m;
+    int       i;
     unsigned  temp;
 
     VW_Bar(0, 0, 320, 200, 0);
@@ -1192,8 +1192,6 @@ void Died(void)
 
 void GameLoop(void)
 {
-    int i, xl, yl, xh, yh;
-    char num[20];
     boolean died;
 
 

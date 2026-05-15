@@ -731,10 +731,8 @@ void PreloadGraphics(void)
 void DrawHighScores(void)
 {
     char buffer[16], *str, buffer1[5];
-    byte temp, temp1, temp2, temp3;
-    word i, j,
-         w, h,
-         x, y;
+    word i,
+         w, h;
     HighScore *s;
 
     MM_SortMem();

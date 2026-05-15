@@ -350,7 +350,6 @@ void InitDoorList (void)
 
 void SpawnDoor (int tilex, int tiley, boolean vertical, int lock)
 {
-	int areanumber;
 	word	*map;
 
 	if (doornum==64)
@@ -417,7 +416,8 @@ void OpenDoor (int door)
 
 void CloseDoor (int door)
 {
-	int	tilex,tiley,area;
+	unsigned tilex,tiley;
+	int	area;
 	objtype *check;
 
 //
@@ -436,32 +436,32 @@ void CloseDoor (int door)
 	{
 		if ( player->tiley == tiley )
 		{
-			if ( ((player->x+MINDIST) >>TILESHIFT) == tilex )
+			if ( (unsigned)((player->x+MINDIST) >>TILESHIFT) == tilex )
 				return;
-			if ( ((player->x-MINDIST) >>TILESHIFT) == tilex )
+			if ( (unsigned)((player->x-MINDIST) >>TILESHIFT) == tilex )
 				return;
 		}
 		check = ACTOR_AT(tilex-1,tiley);
-		if (check && ((check->x+MINDIST) >> TILESHIFT) == tilex )
+		if (check && (unsigned)((check->x+MINDIST) >> TILESHIFT) == tilex )
 			return;
 		check = ACTOR_AT(tilex+1,tiley);
-		if (check && ((check->x-MINDIST) >> TILESHIFT) == tilex )
+		if (check && (unsigned)((check->x-MINDIST) >> TILESHIFT) == tilex )
 			return;
 	}
 	else if (!doorobjlist[door].vertical)
 	{
 		if (player->tilex == tilex)
 		{
-			if ( ((player->y+MINDIST) >>TILESHIFT) == tiley )
+			if ( (unsigned)((player->y+MINDIST) >>TILESHIFT) == tiley )
 				return;
-			if ( ((player->y-MINDIST) >>TILESHIFT) == tiley )
+			if ( (unsigned)((player->y-MINDIST) >>TILESHIFT) == tiley )
 				return;
 		}
 		check = ACTOR_AT(tilex,tiley-1);
-		if (check && ((check->y+MINDIST) >> TILESHIFT) == tiley )
+		if (check && (unsigned)((check->y+MINDIST) >> TILESHIFT) == tiley )
 			return;
 		check = ACTOR_AT(tilex,tiley+1);
-		if (check && ((check->y-MINDIST) >> TILESHIFT) == tiley )
+		if (check && (unsigned)((check->y-MINDIST) >> TILESHIFT) == tiley )
 			return;
 	}
 
@@ -623,7 +623,7 @@ void DoorClosing (int door)
 {
 	int		area1,area2;
 	long	position;
-	int		tilex,tiley;
+	unsigned tilex,tiley;
 	word	*map;
 
 	tilex = doorobjlist[door].tilex;
@@ -815,7 +815,8 @@ void PushWall (int checkx, int checky, int dir)
 
 void MovePWalls (void)
 {
-	int		oldblock,oldtile;
+	unsigned oldblock;
+	int		oldtile;
 
 	if (!pwallstate)
 		return;

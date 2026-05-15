@@ -108,7 +108,6 @@ void SetupScaling(int maxscaleheight)
     for (i = 1; i <= maxscaleheight; i++)
     {
         int height = i * 2;
-        int toppix = (viewheight - height) / 2;
         long step = ((long)height << 16) / 64;
         long fix;
 

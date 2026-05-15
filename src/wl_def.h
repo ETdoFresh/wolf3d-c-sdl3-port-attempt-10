@@ -70,7 +70,9 @@
 #define PLAYERSPEED		3000
 #define RUNSPEED   		6000
 
+#ifndef SCREENSEG
 #define SCREENSEG		0xa000
+#endif
 
 #define SCREENBWIDE		320
 
@@ -126,9 +128,15 @@
 
 #define SCREENSIZE		(SCREENBWIDE*MAXSCANLINES)
 #define PAGE1START		0
+#ifndef PAGE2START
 #define PAGE2START		(SCREENSIZE)
+#endif
+#ifndef PAGE3START
 #define PAGE3START		(SCREENSIZE*2u)
+#endif
+#ifndef FREESTART
 #define	FREESTART		(SCREENSIZE*3u)
+#endif
 
 
 #define PIXRADIUS		512
@@ -628,7 +636,7 @@ typedef enum	{
 	gd_easy,
 	gd_medium,
 	gd_hard
-};
+} difficulty_t;
 
 //---------------
 //
@@ -912,7 +920,7 @@ extern	fixed 		sintable[], *costable;
 // derived constants
 //
 extern	fixed 	scale;
-extern	long	heightnumerator,mindist;
+extern	long	heightnumerator;
 
 //
 // refresh variables

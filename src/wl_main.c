@@ -631,10 +631,8 @@ void CalcProjection(long focal)
     long    intang;
     float   angle;
     double  tang;
-    double  planedist;
-    double  globinhalf;
     int     halfview;
-    double  halfangle, facedist;
+    double  facedist;
 
     focallength = focal;
     facedist = focal + MINDIST;

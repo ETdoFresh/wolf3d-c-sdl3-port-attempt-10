@@ -351,8 +351,9 @@ void HandleCtrls(void)
 void HandleWord(void)
 {
     char word[WORDLIMIT];
-    int i, wordindex;
-    unsigned wwidth, wheight, newpos;
+    int wordindex;
+    uint16_t wwidth, wheight;
+    unsigned newpos;
 
     //
     // copy the next word into [word]
@@ -584,7 +585,6 @@ void CacheLayoutGraphics(void)
 void ShowArticle(char *article)
 {
     unsigned oldfontnumber;
-    unsigned temp;
     boolean newpage, firstpage;
 
     text = article;
@@ -664,9 +664,13 @@ char endfilename[13] = "ENDART1.";
 */
 void HelpScreens(void)
 {
+#ifdef ARTSEXTERN
     int artnum;
     char *textptr;
+#else
+    char *textptr;
     memptr layout;
+#endif
 
     CA_UpLevel();
     MM_SortMem();
@@ -703,9 +707,13 @@ void HelpScreens(void)
 //
 void EndText(void)
 {
+#ifdef ARTSEXTERN
     int artnum;
     char *textptr;
+#else
+    char *textptr;
     memptr layout;
+#endif
 
     ClearMemory();
 

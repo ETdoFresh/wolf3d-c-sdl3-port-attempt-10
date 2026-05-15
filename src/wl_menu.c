@@ -189,7 +189,7 @@ static byte
 ////////////////////////////////////////////////////////////////////
 void US_ControlPanel(byte scancode)
 {
-    int which, i, start;
+    int which;
 
     if (ingame)
         if (CP_CheckQuick(scancode))
@@ -1263,7 +1263,7 @@ void CP_Control(int unused)
 {
     #define CTL_SPC 70
     enum {MOUSEENABLE, JOYENABLE, USEPORT2, PADENABLE, MOUSESENS, CUSTOMIZE};
-    int i, which;
+    int which;
 
     DrawCtlScreen();
     MenuFadeIn();
@@ -2278,7 +2278,7 @@ void DrawOutline(int x, int y, int w, int h, int color1, int color2)
 void SetupControlPanel(void)
 {
     char name[128];
-    int which, i;
+    int which;
     FILE *fp;
 
     //
@@ -2696,7 +2696,6 @@ void ReadAnyControl(ControlInfo *ci)
 
     if (mouseenabled)
     {
-        int mousey, mousex;
 
         IN_ReadCursor(ci);
 
@@ -2743,7 +2742,7 @@ void ReadAnyControl(ControlInfo *ci)
 ////////////////////////////////////////////////////////////////////
 int Confirm(char *string)
 {
-    int xit = 0, i, x, y, tick = 0, time, whichsnd[2] = {ESCPRESSEDSND, SHOOTSND};
+    int xit = 0, x, y, tick = 0, whichsnd[2] = {ESCPRESSEDSND, SHOOTSND};
 
     Message(string);
     IN_ClearKeysDown();
@@ -2797,7 +2796,7 @@ int Confirm(char *string)
 ////////////////////////////////////////////////////////////////////
 void Message(char *string)
 {
-    int h = 0, w = 0, mw = 0, i, x, y, time;
+    int h = 0, w = 0, mw = 0, i;
     fontstruct *font;
 
     CA_CacheGrChunk(STARTFONT + 1);

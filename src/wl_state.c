@@ -4,6 +4,8 @@
 #include "id_heads.h"
 #include "wl_def.h"
 
+void A_DeathScream(objtype *ob);
+
 /*
 =============================================================================
 
@@ -478,7 +480,7 @@ void SelectDodgeDir (objtype *ob)
 
 void SelectChaseDir (objtype *ob)
 {
-	int deltax,deltay,i;
+	int deltax,deltay;
 	dirtype d[3];
 	dirtype tdir, olddir, turnaround;
 
@@ -588,9 +590,9 @@ void SelectChaseDir (objtype *ob)
 
 void SelectRunDir (objtype *ob)
 {
-	int deltax,deltay,i;
+	int deltax,deltay;
 	dirtype d[3];
-	dirtype tdir, olddir, turnaround;
+	dirtype tdir;
 
 
 	deltax=player->tilex - ob->tilex;
@@ -1043,7 +1045,6 @@ boolean CheckLine (objtype *ob)
 	int	x1,y1,xt1,yt1,x2,y2,xt2,yt2;
 	int	x,y;
 	int	xdist,ydist,xstep,ystep;
-	int	temp;
 	int	partial,delta;
 	long	ltemp;
 	int	xfrac,yfrac,deltafrac;

@@ -480,7 +480,7 @@ void HitVertWall (void)
 	}
 	wallheight[pixx] = CalcHeight();
 
-	if (lastside==1 && lastintercept == xtile && lasttilehit == tilehit)
+	if (lastside==1 && lastintercept == xtile && (unsigned)lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
 		if (texture == posttex)
@@ -551,7 +551,7 @@ void HitHorizWall (void)
 		texture = 0xfc0-texture;
 	wallheight[pixx] = CalcHeight();
 
-	if (lastside==0 && lastintercept == ytile && lasttilehit == tilehit)
+	if (lastside==0 && lastintercept == ytile && (unsigned)lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
 		if (texture == posttex)
@@ -618,7 +618,7 @@ void HitHorizDoor (void)
 
 	wallheight[pixx] = CalcHeight();
 
-	if (lasttilehit == tilehit)
+	if ((unsigned)lasttilehit == tilehit)
 	{
 	// in the same door as last time, so check for optimized draw
 		if (texture == posttex)
@@ -689,7 +689,7 @@ void HitVertDoor (void)
 
 	wallheight[pixx] = CalcHeight();
 
-	if (lasttilehit == tilehit)
+	if ((unsigned)lasttilehit == tilehit)
 	{
 	// in the same door as last time, so check for optimized draw
 		if (texture == posttex)
@@ -770,7 +770,7 @@ void HitHorizPWall (void)
 
 	wallheight[pixx] = CalcHeight();
 
-	if (lasttilehit == tilehit)
+	if ((unsigned)lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
 		if (texture == posttex)
@@ -833,7 +833,7 @@ void HitVertPWall (void)
 
 	wallheight[pixx] = CalcHeight();
 
-	if (lasttilehit == tilehit)
+	if ((unsigned)lasttilehit == tilehit)
 	{
 		// in the same wall type as last time, so check for optimized draw
 		if (texture == posttex)
@@ -979,9 +979,8 @@ visobj_t	vislist[MAXVISABLE],*visptr,*visstep,*farthest;
 
 void DrawScaleds (void)
 {
-	int 		i,j,least,numvisable,height;
+	int 		i,least,numvisable,height;
 	byte		*tilespot,*visspot;
-	int			shapenum;
 	unsigned	spotloc;
 
 	statobj_t	*statptr;
@@ -1219,8 +1218,6 @@ static void AsmRefresh (void)
 {
 	long		xstep, ystep;
 	long		xintbuf, yintbuf;
-	unsigned	texdelta;
-	int			count;
 
 	for (pixx = 0; pixx < viewwidth; pixx++)
 	{

@@ -238,9 +238,7 @@ void A_Smoke (objtype *ob)
 boolean ProjectileTryMove (objtype *ob)
 {
 	int			xl,yl,xh,yh,x,y;
-	objtype		*check;
 	uintptr_t	tileval;
-	long		deltax,deltay;
 
 	xl = (ob->x-PROJSIZE) >>TILESHIFT;
 	yl = (ob->y-PROJSIZE) >>TILESHIFT;
@@ -810,7 +808,8 @@ statetype s_gretelshoot8 	= {false,SPR_GRETEL_SHOOT1,10,NULL,NULL,&s_gretelchase
 
 void SpawnStand (enemy_t which, int tilex, int tiley, int dir)
 {
-	word	*map; unsigned tile = 0;
+	word *map;
+	unsigned tile = 0;
 
 	switch (which)
 	{
@@ -898,7 +897,6 @@ void SpawnDeadGuard (int tilex, int tiley)
 
 void SpawnBoss (int tilex, int tiley)
 {
-	word	*map; unsigned tile = 0;
 
 	SpawnNewObj (tilex,tiley,&s_bossstand);
 	new->speed = SPDPATROL;
@@ -921,7 +919,6 @@ void SpawnBoss (int tilex, int tiley)
 
 void SpawnGretel (int tilex, int tiley)
 {
-	word	*map; unsigned tile;
 
 	SpawnNewObj (tilex,tiley,&s_gretelstand);
 	new->speed = SPDPATROL;
@@ -1121,7 +1118,6 @@ void A_DeathScream (objtype *ob)
 
 void SpawnGhosts (int which, int tilex, int tiley)
 {
-	word	*map; unsigned tile;
 
 	switch(which)
 	{
@@ -1339,7 +1335,6 @@ statetype s_fatshoot6 	= {false,SPR_FAT_SHOOT4,10,NULL,T_Shoot,&s_fatchase1};
 
 void SpawnSchabbs (int tilex, int tiley)
 {
-	word	*map; unsigned tile;
 
 	if (DigiMode != sds_Off)
 		s_schabbdie2.tictime = 140;
@@ -1368,7 +1363,6 @@ void SpawnSchabbs (int tilex, int tiley)
 
 void SpawnGift (int tilex, int tiley)
 {
-	word	*map; unsigned tile;
 
 	if (DigiMode != sds_Off)
 	  s_giftdie2.tictime = 140;
@@ -1397,7 +1391,6 @@ void SpawnGift (int tilex, int tiley)
 
 void SpawnFat (int tilex, int tiley)
 {
-	word	*map; unsigned tile;
 
 	if (DigiMode != sds_Off)
 	  s_fatdie2.tictime = 140;
@@ -1953,7 +1946,6 @@ statetype s_hitlershoot6 	= {false,SPR_HITLER_SHOOT2,10,NULL,T_Shoot,&s_hitlerch
 
 void SpawnFakeHitler (int tilex, int tiley)
 {
-	word	*map; unsigned tile;
 
 
 	if (DigiMode != sds_Off)
@@ -1983,7 +1975,6 @@ void SpawnFakeHitler (int tilex, int tiley)
 
 void SpawnHitler (int tilex, int tiley)
 {
-	word	*map; unsigned tile;
 
 	if (DigiMode != sds_Off)
 		s_hitlerdie2.tictime = 140;
@@ -2013,7 +2004,7 @@ void SpawnHitler (int tilex, int tiley)
 
 void A_HitlerMorph (objtype *ob)
 {
-	word	*map; unsigned tile,hitpoints[4]={500,700,800,900};
+	unsigned hitpoints[4]={500,700,800,900};
 
 
 	SpawnNewObj (ob->tilex,ob->tiley,&s_hitlerchase1);
@@ -2101,8 +2092,6 @@ void T_FakeFire (objtype *ob)
 void T_Fake (objtype *ob)
 {
 	long move;
-	int	dx,dy,dist;
-	boolean	dodge;
 
 	if (CheckLine(ob))			// got a shot at player?
 	{
@@ -2365,7 +2354,6 @@ void T_Ghosts (objtype *ob)
 void T_DogChase (objtype *ob)
 {
 	long 	move;
-	int		dist,chance;
 	long	dx,dy;
 
 
@@ -2475,7 +2463,6 @@ void SelectPathDir (objtype *ob)
 void T_Path (objtype *ob)
 {
 	long 	move;
-	long 	deltax,deltay,size;
 
 	if (SightPlayer (ob))
 		return;
@@ -2636,7 +2623,6 @@ void T_Shoot (objtype *ob)
 void T_Bite (objtype *ob)
 {
 	long	dx,dy;
-	int	hitchance,damage;
 
 
 	PlaySoundLocActor(DOGATTACKSND,ob);	// JAB
@@ -2725,7 +2711,6 @@ statetype s_deathcam = {false,0,0,NULL,NULL,NULL};
 
 void SpawnBJVictory (void)
 {
-	word	*map; unsigned tile;
 
 	SpawnNewObj (player->tilex,player->tiley+1,&s_bjrun1);
 	new->x = player->x;
@@ -2835,7 +2820,6 @@ void T_BJDone (objtype *ob)
 boolean	CheckPosition (objtype *ob)
 {
 	int	x,y,xl,yl,xh,yh;
-	objtype *check;
 	uintptr_t tileval;
 
 	xl = (ob->x-PLAYERSIZE) >>TILESHIFT;
