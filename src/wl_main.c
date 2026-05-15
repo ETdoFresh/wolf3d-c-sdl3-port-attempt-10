@@ -1043,6 +1043,17 @@ void DemoLoop(void)
     //
     // check for launch from ted
     //
+    // Headless test hook: WOLF3D_TEDLEVEL=N forces a direct boot into
+    // episode (N/10), map (N%10) — the same path as the original TED5
+    // editor's level test. Used by the screenshot harness to capture
+    // in-game rendering without going through menus.
+    {
+        const char *env_ted = SDL_getenv("WOLF3D_TEDLEVEL");
+        if (env_ted) {
+            tedlevel = true;
+            tedlevelnum = atoi(env_ted);
+        }
+    }
     if (tedlevel)
     {
         NoWait = true;
