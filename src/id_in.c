@@ -362,6 +362,7 @@ void IN_Ack(void)
     while (!IN_CheckAck()) {
         SD_Poll();
         VL_Present();
+        SDL_Delay(5);
     }
 }
 
