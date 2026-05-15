@@ -471,7 +471,7 @@ void CloseDoor (int door)
 //
 	area = *(mapsegs[0] + farmapylookup[doorobjlist[door].tiley]
 			+doorobjlist[door].tilex)-AREATILE;
-	if (area < NUMAREAS && areabyplayer[area])
+	if (areabyplayer[area])
 	{
 		PlaySoundLocTile(CLOSEDOORSND,doorobjlist[door].tilex,doorobjlist[door].tiley);	// JAB
 	}
@@ -586,7 +586,7 @@ void DoorOpening (int door)
 		areaconnect[area2][area1]++;
 
 		ConnectAreas ();
-		if (area1 < NUMAREAS && areabyplayer[area1])
+		if (areabyplayer[area1])
 		{
 			PlaySoundLocTile(OPENDOORSND,doorobjlist[door].tilex,doorobjlist[door].tiley);	// JAB
 		}
@@ -666,11 +666,8 @@ void DoorClosing (int door)
 		}
 		area1 -= AREATILE;
 		area2 -= AREATILE;
-		if (area1 >= 0 && area1 < NUMAREAS && area2 >= 0 && area2 < NUMAREAS)
-		{
 		areaconnect[area1][area2]--;
 		areaconnect[area2][area1]--;
-		}
 
 		ConnectAreas ();
 	}
