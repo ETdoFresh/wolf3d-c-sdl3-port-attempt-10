@@ -46,16 +46,12 @@ else()
     endif()
 endif()
 
-# Copy assets directory to build output
-add_custom_command(TARGET wolf3d POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/assets
-        $<TARGET_FILE_DIR:wolf3d>/assets
-)
-
 # Copy the SDL3 shared library next to the executable so it runs in place
+# (used during dev; scripts/publish.{ps1,sh} handle final layout).
+# Wrapped so a locked DLL (running wolf3d.exe) doesn't fail the build.
 add_custom_command(TARGET wolf3d POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL3::SDL3>
         $<TARGET_FILE_DIR:wolf3d>
+    COMMAND_EXPAND_LISTS
 )
