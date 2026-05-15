@@ -6,6 +6,8 @@
 #include "id_vl.h"
 #include "id_ca.h"
 #include "id_mm.h"
+#include "id_in.h"
+#include <SDL3/SDL.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -267,10 +269,47 @@ void LatchDrawPic(int x, int y, int picnum)
 
 void FizzleFade(unsigned src, unsigned dst, int width, int height, int steps, boolean abortable)
 {
-    // Simple fade - just copy and present
+    // Original Wolf3D fizzle fade: 17-bit LFSR (taps 17,3) visits each pixel
+    // of the width*height region pseudo-randomly, copying src->dst one pixel
+    // per iteration, presenting every (w*h/steps) pixels for animation.
+    byte *fb = VL_GetFramebuffer();
+    int total = width * height;
+    int per_frame = total / steps;
+    if (per_frame < 1) per_frame = 1;
+
+    unsigned long rndval = 1;
+    int drawn = 0;
+    int frame_drawn = 0;
+
+    do {
+        // Advance LFSR (17-bit maximal, taps at bits 17 and 3)
+        int bit = (int)((rndval >> 16) ^ (rndval >> 2)) & 1;
+        rndval = ((rndval << 1) | (unsigned long)bit) & 0x1FFFF;
+
+        if (rndval > (unsigned long)total)
+            continue;
+
+        int offset = (int)rndval - 1;    // 1-based LFSR → 0-based offset
+        int x = offset % width;
+        int y = offset / width;
+
+        // Copy one pixel from src row to dst row
+        fb[dst + y * linewidth + x] = fb[src + y * linewidth + x];
+        drawn++;
+        frame_drawn++;
+
+        if (frame_drawn >= per_frame) {
+            VL_Present();
+            frame_drawn = 0;
+            if (abortable && IN_CheckAck())
+                break;
+        }
+    } while (rndval != 1);  // LFSR completes full cycle back to seed
+
+    // Ensure final state is fully copied and presented
     VL_ScreenToScreen(src, dst, width, height);
     VL_Present();
-    (void)steps; (void)abortable;
+    (void)drawn;
 }
 
 void LoadLatchMem(void)
