@@ -727,8 +727,8 @@ void 		CalcProjection (long focal);
 boolean		SetViewSize (unsigned width, unsigned height);
 void		NewGame (int difficulty,int episode);
 void 		NewViewSize (int width);
-boolean 	LoadTheGame(int file,int x,int y);
-boolean		SaveTheGame(int file,int x,int y);
+boolean 	LoadTheGame(intptr_t file,int x,int y);
+boolean		SaveTheGame(intptr_t file,int x,int y);
 void 		ShowViewSize (int width);
 void		ShutdownId (void);
 

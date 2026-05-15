@@ -945,7 +945,7 @@ int CP_LoadGame(int quick)
             if (!fp) return 0;
             fseek(fp, 32, SEEK_SET);
             loadedgame = true;
-            LoadTheGame((int)(intptr_t)fp, 0, 0);
+            LoadTheGame((intptr_t)fp, 0, 0);
             loadedgame = false;
             fclose(fp);
 
@@ -978,7 +978,7 @@ int CP_LoadGame(int quick)
             DrawLSAction(0);
             loadedgame = true;
 
-            LoadTheGame((int)(intptr_t)fp, LSA_X + 8, LSA_Y + 5);
+            LoadTheGame((intptr_t)fp, LSA_X + 8, LSA_Y + 5);
             fclose(fp);
 
             StartGame = 1;
@@ -1094,7 +1094,7 @@ int CP_SaveGame(int quick)
 
             fwrite(input, 1, 32, fp);
             fseek(fp, 32, SEEK_SET);
-            SaveTheGame((int)(intptr_t)fp, 0, 0);
+            SaveTheGame((intptr_t)fp, 0, 0);
             fclose(fp);
 
             return 1;
@@ -1146,7 +1146,7 @@ int CP_SaveGame(int quick)
                     fseek(fp, 32, SEEK_SET);
 
                     DrawLSAction(1);
-                    SaveTheGame((int)(intptr_t)fp, LSA_X + 8, LSA_Y + 5);
+                    SaveTheGame((intptr_t)fp, LSA_X + 8, LSA_Y + 5);
 
                     fclose(fp);
                 }

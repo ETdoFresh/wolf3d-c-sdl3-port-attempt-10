@@ -315,11 +315,11 @@ long DoChecksum(byte *source, unsigned size, long checksum)
 ==================
 */
 
-boolean SaveTheGame(int file, int x, int y)
+boolean SaveTheGame(intptr_t file, int x, int y)
 {
     long avail, size, checksum;
     objtype *ob, nullobj;
-    FILE *fp = (FILE *)(intptr_t)file;
+    FILE *fp = (FILE *)file;
 
     if (!fp) return false;
 
@@ -422,11 +422,11 @@ boolean SaveTheGame(int file, int x, int y)
 ==================
 */
 
-boolean LoadTheGame(int file, int x, int y)
+boolean LoadTheGame(intptr_t file, int x, int y)
 {
     long checksum, oldchecksum;
     objtype nullobj;
-    FILE *fp = (FILE *)(intptr_t)file;
+    FILE *fp = (FILE *)file;
 
     if (!fp) return false;
 
@@ -1140,6 +1140,49 @@ int main(int argc, char *argv[])
     InitGame();
 
     printf("Game initialized. Running demo loop.\n");
+
+    if (MS_CheckParm("test-saveload"))
+    {
+        // Save/Load round-trip self-test: set up a level, save, load, save
+        // again, then compare the two save files. Any byte difference means
+        // load is not the inverse of save for some serialized field.
+        const char *p1 = "test_save_A.bin";
+        const char *p2 = "test_save_B.bin";
+        FILE *fp;
+        NewGame(gd_Normal, 0);
+        SetupGameLevel();
+
+        fp = fopen(p1, "wb"); if (!fp) { Quit("test-saveload: fopen A"); }
+        SaveTheGame((intptr_t)fp, 0, 0);
+        fclose(fp);
+
+        fp = fopen(p1, "rb"); if (!fp) { Quit("test-saveload: reopen A"); }
+        loadedgame = true; LoadTheGame((intptr_t)fp, 0, 0); loadedgame = false;
+        fclose(fp);
+
+        fp = fopen(p2, "wb"); if (!fp) { Quit("test-saveload: fopen B"); }
+        SaveTheGame((intptr_t)fp, 0, 0);
+        fclose(fp);
+
+        FILE *fa = fopen(p1, "rb"), *fb = fopen(p2, "rb");
+        if (!fa || !fb) { Quit("test-saveload: reopen for compare"); }
+        fseek(fa, 0, SEEK_END); long la = ftell(fa); fseek(fa, 0, SEEK_SET);
+        fseek(fb, 0, SEEK_END); long lb = ftell(fb); fseek(fb, 0, SEEK_SET);
+        printf("test-saveload: save A=%ld bytes, save B=%ld bytes\n", la, lb);
+        long diffs = 0, first_diff = -1;
+        if (la == lb) {
+            for (long i = 0; i < la; i++) {
+                int ca = fgetc(fa), cb = fgetc(fb);
+                if (ca != cb) { if (first_diff < 0) first_diff = i; diffs++; }
+            }
+            printf("test-saveload: %ld byte diffs (first at offset %ld)\n", diffs, first_diff);
+        } else {
+            printf("test-saveload: FAIL size mismatch\n");
+        }
+        fclose(fa); fclose(fb);
+        printf("test-saveload: %s\n", (la == lb && diffs == 0) ? "PASS" : "FAIL");
+        Quit(NULL);
+    }
 
     DemoLoop();
 
