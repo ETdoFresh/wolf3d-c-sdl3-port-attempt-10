@@ -1234,6 +1234,37 @@ int main(int argc, char *argv[])
         Quit(NULL);
     }
 
+    if (MS_CheckParm("test-cutscene-highscore"))
+    {
+        // Render the high-score table with one slot pre-populated.
+        Scores[0].score = 12345;
+        Scores[0].completed = 1;
+        Scores[0].episode = 0;
+        strcpy(Scores[0].name, "BLAZKOWICZ");
+        // Set palette so colors render correctly (otherwise framebuffer is
+        // valid but palette is all zero → black output).
+        VL_SetPalette(gamepal);
+        DrawHighScores();
+        VW_UpdateScreen();
+        VL_Present();
+        VL_Present();
+        printf("test-cutscene-highscore: rendered\n");
+        Quit(NULL);
+    }
+
+    if (MS_CheckParm("test-cutscene-endtext"))
+    {
+        // Render the end-of-episode story text (red letter screen).
+        gamestate.episode = 0;  // Episode 1 ending
+        VL_SetPalette(gamepal);
+        EndText();
+        VW_UpdateScreen();
+        VL_Present();
+        VL_Present();
+        printf("test-cutscene-endtext: rendered\n");
+        Quit(NULL);
+    }
+
     if (MS_CheckParm("test-cutscene-victory"))
     {
         // Render the Victory ("You Win") end-of-episode screen.
