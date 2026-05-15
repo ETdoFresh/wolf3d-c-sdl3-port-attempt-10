@@ -262,7 +262,8 @@ void US_PrintCentered(const char *s)
 
 void US_CPrint(const char *s)
 {
-    char c, *se;
+    char c;
+    const char *se;
     word w, h;
 
     while (*s)
@@ -297,7 +298,8 @@ void US_CPrintLine(const char *s)
 
 void US_Print(const char *s)
 {
-    char c, *se;
+    char c;
+    const char *se;
     word w, h;
     char linebuf[256];
 
