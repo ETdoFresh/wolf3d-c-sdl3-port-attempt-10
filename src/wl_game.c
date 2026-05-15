@@ -2,6 +2,7 @@
 // Ported from original WOLFSRC/WL_GAME.C
 
 #include "wl_def.h"
+#include <SDL3/SDL.h>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
@@ -1024,6 +1025,10 @@ void PlayDemo(int demonumber)
     CA_CacheGrChunk(dems[demonumber]);
     demoptr = grsegs[dems[demonumber]];
     MM_SetLock(&grsegs[dems[demonumber]], true);
+
+    if (SDL_getenv("WOLF3D_INDEBUG"))
+        fprintf(stderr, "PlayDemo %d: chunk %d ptr=%p\n",
+                demonumber, dems[demonumber], (void *)demoptr);
 
     NewGame(1, 0);
     gamestate.mapon = *demoptr++;
