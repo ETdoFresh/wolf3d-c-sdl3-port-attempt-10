@@ -549,26 +549,31 @@ void IN_ReadControl(int player, ControlInfo *ci)
 
     case ctrl_Joystick:
     case ctrl_Joystick1:
-    case ctrl_Joystick2:
-        // Joystick support placeholder - SDL3 game controller API
-        // For now, fall through to keyboard defaults
-        def = &KbdDefs;
-        if (Keyboard[def->up])    up = true;
-        if (Keyboard[def->down])  down = true;
-        if (Keyboard[def->left])  left = true;
-        if (Keyboard[def->right]) right = true;
-        if (Keyboard[def->button0]) button0 = true;
-        if (Keyboard[def->button1]) button1 = true;
-
-        ci->xaxis = motion_None;
-        ci->yaxis = motion_None;
-        if (left)  ci->xaxis = motion_Left;
-        if (right) ci->xaxis = motion_Right;
-        if (up)    ci->yaxis = motion_Up;
-        if (down)  ci->yaxis = motion_Down;
-        ci->button0 = button0;
-        ci->button1 = button1;
+    case ctrl_Joystick2: {
+        // Read live SDL3 joystick axes for player 0 (joy index 0).
+        int joyx = 0, joyy = 0;
+        INL_GetJoyDelta(0, &joyx, &joyy);
+        ci->x = joyx;
+        ci->y = joyy;
+        word buttons = IN_JoyButtons();
+        ci->button0 = (buttons & 1) != 0;
+        ci->button1 = (buttons & 2) != 0;
+        ci->button2 = (buttons & 4) != 0;
+        ci->button3 = (buttons & 8) != 0;
+        // Axis -> direction with the same ±64 threshold PollJoystickMove uses.
+        ci->xaxis = (joyx < -64) ? motion_Left  : (joyx > 64) ? motion_Right : motion_None;
+        ci->yaxis = (joyy < -64) ? motion_Up    : (joyy > 64) ? motion_Down  : motion_None;
+        ci->dir = dir_None;
+        if (ci->xaxis == motion_None && ci->yaxis == motion_Up)    ci->dir = dir_North;
+        if (ci->xaxis == motion_None && ci->yaxis == motion_Down)  ci->dir = dir_South;
+        if (ci->xaxis == motion_Left  && ci->yaxis == motion_None) ci->dir = dir_West;
+        if (ci->xaxis == motion_Right && ci->yaxis == motion_None) ci->dir = dir_East;
+        if (ci->xaxis == motion_Right && ci->yaxis == motion_Up)   ci->dir = dir_NorthEast;
+        if (ci->xaxis == motion_Right && ci->yaxis == motion_Down) ci->dir = dir_SouthEast;
+        if (ci->xaxis == motion_Left  && ci->yaxis == motion_Up)   ci->dir = dir_NorthWest;
+        if (ci->xaxis == motion_Left  && ci->yaxis == motion_Down) ci->dir = dir_SouthWest;
         break;
+    }
     }
 }
 
