@@ -387,6 +387,7 @@ boolean IN_CheckAck(void)
 
     if (LastScan != sc_None)  return true;
     if (mouseButtons)         return true;
+    if (IN_JoyButtons())      return true;
 
     return false;
 }
