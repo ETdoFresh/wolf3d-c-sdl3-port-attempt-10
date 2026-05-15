@@ -566,7 +566,7 @@ void SD_Poll(void)
     // TimeCount is advanced by CalcTics during gameplay (70Hz).
     // Do NOT increment TimeCount here — that was double-counting.
 
-    // Rate-limit music events to ~70Hz based on real time
+    // Tick music at 140Hz — original Wolf3D timer 0 ran at 140Hz for alTimeCount.
     static Uint64 last_music_ms = 0;
     static long music_accumulator = 0;
     Uint64 now = SDL_GetTicks();
@@ -575,7 +575,7 @@ void SD_Poll(void)
     Uint64 elapsed = now - last_music_ms;
     unsigned music_ticks = 0;
     if (elapsed > 0) {
-        music_accumulator += (long)elapsed * TICKS_PER_SEC;
+        music_accumulator += (long)elapsed * SFX_RATE;  // 140Hz
         music_ticks = (unsigned)(music_accumulator / 1000);
         music_accumulator %= 1000;
         last_music_ms = now;
