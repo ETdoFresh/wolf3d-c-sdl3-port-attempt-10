@@ -10,6 +10,8 @@
 // that are not yet declared in wl_def.h
 extern void LoadLatchMem(void);
 
+#include "wl_menu.h"
+
 /*
 =============================================================================
 
@@ -330,6 +332,7 @@ boolean SaveTheGame(int file, int x, int y)
     size += sizeof(nullobj);
 
     size += (long)sizeof(gamestate) +
+            (long)(sizeof(LRstruct) * 8) +
             (long)sizeof(tilemap) +
             (long)sizeof(actorat) +
             (long)sizeof(laststatobj) +
@@ -351,6 +354,10 @@ boolean SaveTheGame(int file, int x, int y)
     DiskFlopAnim(x, y);
     fwrite(&gamestate, sizeof(gamestate), 1, fp);
     checksum = DoChecksum((byte *)&gamestate, sizeof(gamestate), checksum);
+
+    DiskFlopAnim(x, y);
+    fwrite(&LevelRatios[0], sizeof(LRstruct) * 8, 1, fp);
+    checksum = DoChecksum((byte *)&LevelRatios[0], sizeof(LRstruct) * 8, checksum);
 
     DiskFlopAnim(x, y);
     fwrite(tilemap, sizeof(tilemap), 1, fp);
@@ -428,6 +435,10 @@ boolean LoadTheGame(int file, int x, int y)
     DiskFlopAnim(x, y);
     fread(&gamestate, sizeof(gamestate), 1, fp);
     checksum = DoChecksum((byte *)&gamestate, sizeof(gamestate), checksum);
+
+    DiskFlopAnim(x, y);
+    fread(&LevelRatios[0], sizeof(LRstruct) * 8, 1, fp);
+    checksum = DoChecksum((byte *)&LevelRatios[0], sizeof(LRstruct) * 8, checksum);
 
     DiskFlopAnim(x, y);
     SetupGameLevel();
