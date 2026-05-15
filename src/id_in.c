@@ -409,6 +409,7 @@ ScanCode IN_WaitForKey(void)
             IN_ClearKeysDown();
             return result;
         }
+        SDL_Delay(5);   // yield so we don't burn 100% CPU spinning
     }
 }
 
