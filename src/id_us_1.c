@@ -243,8 +243,8 @@ void US_ClearWindow(void)
 // Print routines
 // ========================================================================
 
-static void (*custom_measure)(char *, word *, word *) = NULL;
-static void (*custom_draw)(char *) = NULL;
+static void (*custom_measure)(const char *, word *, word *) = NULL;
+static void (*custom_draw)(const char *) = NULL;
 
 void US_SetPrintRoutines(void (*measure)(const char *, word *, word *), void (*draw)(const char *))
 {

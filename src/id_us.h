@@ -41,8 +41,8 @@ extern boolean Button0, Button1, CursorBad;
 extern int     CursorX, CursorY;
 
 // Function pointers for string measurement/drawing
-extern void (*USL_MeasureString)(char *, word *, word *);
-extern void (*USL_DrawString)(char *);
+extern void (*USL_MeasureString)(const char *, word *, word *);
+extern void (*USL_DrawString)(const char *);
 extern SaveGame Games[MaxSaveGames];
 extern HighScore Scores[MaxScores];
 extern int    tedlevel, tedlevelnum;
