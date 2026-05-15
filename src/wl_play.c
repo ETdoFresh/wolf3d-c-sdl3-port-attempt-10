@@ -485,17 +485,17 @@ void PollControls (void)
 	// not called here, so throttle to real time directly instead (otherwise
 	// the busy-wait would spin forever and hang the demo).
 	//
-		static Uint32 demo_last_ticks = 0;
-		Uint32 now = SDL_GetTicks();
-		Uint32 target = 1000u * DEMOTICS / 70u;		// ms per demo frame
-		Uint32 elapsed;
+		static Uint64 demo_last_ticks = 0;
+		Uint64 now = SDL_GetTicks();
+		Uint64 target = 1000u * DEMOTICS / 70u;		// ms per demo frame
+		Uint64 elapsed;
 
 		if (demo_last_ticks == 0)
 			demo_last_ticks = now;
 		elapsed = now - demo_last_ticks;
 		if (elapsed < target)
 		{
-			SDL_Delay(target - elapsed);
+			SDL_Delay((Uint32)(target - elapsed));
 			now = SDL_GetTicks();
 		}
 		demo_last_ticks = now;
