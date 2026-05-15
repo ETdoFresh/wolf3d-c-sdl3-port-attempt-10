@@ -107,7 +107,7 @@ static int positioned_ch = -1;
 void SD_Startup(void)
 {
     TimeCount = 0;
-    memset(DigiMap, 0, sizeof(DigiMap));
+    memset(DigiMap, 0xFF, sizeof(DigiMap));  // 0xFFFF = no digi for this sound
     DigiPlaying = false;
     userHook = NULL;
     memset(channels, 0, sizeof(channels));
@@ -326,9 +326,11 @@ int SD_PlaySound(soundnames sound)
     if (sound < 0 || sound >= LASTSOUND) return 0;
     if (!audio_device) return 0;
 
-    // Try digitized sound first (original: DigiMap[sound] != -1 path).
-    int digi_index = STARTDIGISOUNDS + sound;
-    if (digi_index < NUMSNDCHUNKS) {
+    // Try digitized sound first: look up the digi chunk via DigiMap.
+    // DigiMap[sound] == 0xFFFF means no digi version of this sound.
+    word digi_slot = DigiMap[sound];
+    int digi_index = (digi_slot != 0xFFFF) ? (int)(STARTDIGISOUNDS + digi_slot) : -1;
+    if (digi_index >= 0 && digi_index < NUMSNDCHUNKS) {
         if (!audiosegs[digi_index])
             CA_CacheAudioChunk(digi_index);
         if (audiosegs[digi_index]) {
