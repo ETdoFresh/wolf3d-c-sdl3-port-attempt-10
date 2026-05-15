@@ -281,8 +281,9 @@ static byte *ReadSpriteColumn(t_compshape *shape, int col)
 
         for (int i = start; i < end && i < 64; i++)
         {
-            if (i >= 0 && top + i < PMPageSize)
-                pixels[i] = linesrc[top + i];
+            unsigned srcofs = top + (unsigned)(i - start);
+            if (i >= 0 && srcofs < PMPageSize)
+                pixels[i] = linesrc[srcofs];
         }
     }
 
