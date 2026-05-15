@@ -566,7 +566,7 @@ void VL_Present(void)
     if (!vl_texture || !vl_renderer) return;
 
     // Cap at ~70fps
-    static Uint32 last_present = 0;
+    static Uint64 last_present = 0;
     Uint32 now = SDL_GetTicks();
     if (last_present != 0 && (now - last_present) < 14) {
         SDL_Delay(14 - (now - last_present));

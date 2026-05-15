@@ -76,7 +76,7 @@ static const byte *al_sound = NULL;
 static word        al_length_left = 0;
 static byte        al_block = 0;
 static long        al_sfx_accumulator = 0;    // for 140Hz ticking
-static Uint32      al_sfx_last_ms = 0;
+static Uint64      al_sfx_last_ms = 0;
 #define SFX_RATE 140
 
 #define MAX_CHANNELS 4
@@ -548,7 +548,7 @@ void SD_Poll(void)
     // Do NOT increment TimeCount here — that was double-counting.
 
     // Rate-limit music events to ~70Hz based on real time
-    static Uint32 last_music_ms = 0;
+    static Uint64 last_music_ms = 0;
     static long music_accumulator = 0;
     Uint32 now = SDL_GetTicks();
     if (last_music_ms == 0) last_music_ms = now;

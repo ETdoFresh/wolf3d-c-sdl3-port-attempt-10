@@ -1142,7 +1142,7 @@ void DrawPlayerWeapon (void)
 
 void CalcTics (void)
 {
-	static Uint32 last_sdl_ticks = 0;
+	static Uint64 last_sdl_ticks = 0;
 	Uint32 now, elapsed;
 
 //

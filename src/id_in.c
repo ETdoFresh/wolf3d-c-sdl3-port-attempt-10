@@ -33,7 +33,7 @@ word       DemoOffset, DemoSize;
 static int   mouseButtons;
 static int   mouseDX, mouseDY;
 static boolean ackStarted;
-static Uint32 ackStartTime;
+static Uint64 ackStartTime;
 static void (*keyHook)(void);
 
 // Forward declarations
