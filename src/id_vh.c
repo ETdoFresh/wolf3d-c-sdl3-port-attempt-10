@@ -83,7 +83,7 @@ void VW_DrawPropString(char *string)
         {
             for (int row = 0; row < height; row++)
             {
-                if (source[row * width + col])
+                if (source[col * height + row])
                 {
                     int sx = PrintX + col;
                     int sy = PrintY + row;
