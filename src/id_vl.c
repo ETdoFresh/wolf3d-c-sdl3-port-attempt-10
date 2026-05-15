@@ -564,14 +564,6 @@ void VL_Present(void)
 {
     if (!vl_texture || !vl_renderer) return;
 
-    // Cap at ~70fps
-    static Uint64 last_present = 0;
-    Uint64 now = SDL_GetTicks();
-    if (last_present != 0 && (now - last_present) < 14) {
-        SDL_Delay((Uint32)(14 - (now - last_present)));
-    }
-    last_present = SDL_GetTicks();
-
     // Convert indexed framebuffer to RGBA8888
     unsigned page_offset = displayofs;
     if (page_offset >= FB_SIZE) page_offset = 0;
