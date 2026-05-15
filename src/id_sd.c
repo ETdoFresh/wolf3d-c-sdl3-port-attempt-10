@@ -399,6 +399,8 @@ void SD_StopSound(void)
         channels[ch].active = 0;
     }
     DigiPlaying = false;
+    SoundPositioned = false;
+    positioned_ch = -1;
     if (al_sound)
         SD_AlStopSound();
 }
@@ -424,6 +426,10 @@ int SD_SoundPlaying(void)
             SDL_DestroyAudioStream(channels[ch].stream);
             channels[ch].stream = NULL;
             channels[ch].active = 0;
+            if (ch == positioned_ch) {
+                SoundPositioned = false;
+                positioned_ch = -1;
+            }
         }
     }
     // AdLib SFX also counts as a sound playing.

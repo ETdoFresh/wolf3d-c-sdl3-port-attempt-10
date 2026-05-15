@@ -162,6 +162,7 @@ void PlaySoundLocGlobal(word s, fixed gx, fixed gy)
     {
         globalsoundx = gx;
         globalsoundy = gy;
+        SoundPositioned = true;
     }
 }
 
