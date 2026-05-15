@@ -14,6 +14,7 @@
 // Globals
 boolean    MousePresent;
 boolean    JoysPresent[MaxJoys];
+static SDL_Joystick *in_joysticks[MaxJoys];
 boolean    Keyboard[NumCodes];
 boolean    Paused;
 char       LastASCII;
@@ -310,12 +311,19 @@ void IN_Startup(void)
         Controls[i] = ctrl_Keyboard;
     }
 
-    // Check for joysticks/gamepads
+    // Check for joysticks/gamepads, open the first MaxJoys so INL_GetJoyDelta
+    // can read live axis values.
     {
         int numJoys = 0;
         SDL_JoystickID *joys = SDL_GetJoysticks(&numJoys);
         for (i = 0; i < MaxJoys; i++) {
-            JoysPresent[i] = (i < numJoys);
+            if (i < numJoys) {
+                in_joysticks[i] = SDL_OpenJoystick(joys[i]);
+                JoysPresent[i] = (in_joysticks[i] != NULL);
+            } else {
+                in_joysticks[i] = NULL;
+                JoysPresent[i] = false;
+            }
         }
         SDL_free(joys);
     }
@@ -665,8 +673,15 @@ word IN_JoyButtons(void)
 
 void INL_GetJoyDelta(int joy, int *dx, int *dy)
 {
-    // Stub - SDL3 joystick delta not implemented yet
-    if (dx) *dx = 0;
-    if (dy) *dy = 0;
-    (void)joy;
+    if (!dx || !dy) return;
+    *dx = *dy = 0;
+    if (joy < 0 || joy >= MaxJoys || !in_joysticks[joy]) return;
+
+    // Wolf3D's IN_ReadCursor expects deltas in roughly -128..127 (the menus
+    // treat |delta| > 64 as a directional press). SDL3 axes are -32768..32767;
+    // scale by /256 to land in that range.
+    int16_t ax = SDL_GetJoystickAxis(in_joysticks[joy], 0);
+    int16_t ay = SDL_GetJoystickAxis(in_joysticks[joy], 1);
+    *dx = ax / 256;
+    *dy = ay / 256;
 }
