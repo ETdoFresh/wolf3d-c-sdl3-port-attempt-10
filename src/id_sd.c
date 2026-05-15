@@ -220,6 +220,11 @@ static int SD_PlayRaw(byte *data, int datalen, int hertz)
 
 int SD_PlaySound(soundnames sound)
 {
+    // PARITY GAP: original SD_PlaySound falls back to SDL_ALPlaySound (AdLib
+    // SFX via OPL channel 0) for any sound whose DigiMap entry is -1, or when
+    // DigiMode is off. This port only plays the digitized variant; sounds that
+    // exist only as AdLib data in the audio chunks are silent. Full parity
+    // requires routing AdLib SFX through the OPL3 emulator alongside music.
     if (sound < 0 || sound >= LASTSOUND) return 0;
     if (!audio_device) return 0;
 
