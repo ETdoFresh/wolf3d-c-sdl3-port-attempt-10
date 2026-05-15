@@ -3,6 +3,7 @@
 // with SDL3 event handling.
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <SDL3/SDL.h>
@@ -10,6 +11,8 @@
 #include "id_in.h"
 #include "id_vl.h"
 #include "id_sd.h"
+
+extern void Quit(char *error);
 
 // Globals
 boolean    MousePresent;
