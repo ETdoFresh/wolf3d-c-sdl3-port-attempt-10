@@ -592,7 +592,7 @@ boolean IN_UserInput(longword delay)
         SD_Poll();
         VL_Present();
 
-        if (LastScan != sc_None || mouseButtons) {
+        if (LastScan != sc_None || mouseButtons || IN_JoyButtons()) {
             IN_ClearKeysDown();
             return true;
         }
