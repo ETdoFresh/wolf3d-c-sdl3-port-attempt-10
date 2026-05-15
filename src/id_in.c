@@ -663,7 +663,9 @@ void IN_GetJoyAbs(int joy, int *x, int *y)
 
 void IN_SetupJoy(int joy, int xmin, int xmax, int ymin, int ymax)
 {
-    // Stub - SDL3 joystick setup not implemented yet
+    // Stores user-calibrated axis-range thresholds; INL_GetJoyDelta and
+    // IN_GetJoyAbs read live SDL3 axis values, the menus' calibration
+    // step records the user's chosen low/high bounds here.
     if (joy >= 0 && joy < MaxJoys) {
         JoyDefs[joy].threshMinX = (word)xmin;
         JoyDefs[joy].threshMaxX = (word)xmax;
