@@ -97,7 +97,7 @@ void VW_DrawPropString(char *string)
 }
 
 // ========================================================================
-// Tile drawing (stubs - will be filled in when tile system is ported)
+// Tile drawing (Wolf3D does not use the tile system; these are no-ops)
 // ========================================================================
 
 void VW_DrawTile8(int x, int y, int tile)
@@ -200,23 +200,21 @@ void VW_Vlin(int y1, int y2, int x, int color)
 }
 
 // ========================================================================
-// Sprite drawing (stub)
+// Sprite drawing (Wolf3D uses scaled sprites via wl_scale.c, not VH sprites)
 // ========================================================================
 
 void VW_DrawSprite(int x, int y, int sprite)
 {
     (void)x; (void)y; (void)sprite;
-    // Will be implemented when sprite system is ported
 }
 
 // ========================================================================
-// Masked block blit (stub)
+// Masked block blit (unused in Wolf3D; sprites use wl_scale.c path)
 // ========================================================================
 
 void VW_MaskBlock(byte *mask, int x, int y, int width, int height)
 {
     (void)mask; (void)x; (void)y; (void)width; (void)height;
-    // Will be implemented when masked blit is ported
 }
 
 // ========================================================================

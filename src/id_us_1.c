@@ -1,7 +1,6 @@
-// id_us_1.c - User Services (minimal SDL3 port)
+// id_us_1.c - User Services (SDL3 port)
 // Provides basic user interface functions: window drawing, text output,
 // random numbers, command-line parsing, high scores.
-// Most functions are stubs initially.
 
 #include "id_us.h"
 #include "id_vl.h"
@@ -151,7 +150,7 @@ int US_RndT(void)
 }
 
 // ========================================================================
-// Load/Save hooks (stubs)
+// Load/Save hooks
 // ========================================================================
 
 static boolean (*save_hook)(int)   = NULL;
@@ -166,7 +165,7 @@ void US_SetLoadSaveHooks(boolean (*save)(int), boolean (*load)(int), void (*rese
 }
 
 // ========================================================================
-// Text screen (stubs)
+// Text screen (no-op: DOS text mode not applicable in SDL3 port)
 // ========================================================================
 
 void US_TextScreen(void)
@@ -241,7 +240,7 @@ void US_ClearWindow(void)
 }
 
 // ========================================================================
-// Print routines (stubs)
+// Print routines
 // ========================================================================
 
 static void (*custom_measure)(char *, word *, word *) = NULL;
@@ -345,7 +344,7 @@ void US_PrintSigned(long n)
 }
 
 // ========================================================================
-// Cursor (stubs)
+// Cursor (no-op: SDL3 handles cursor via window system)
 // ========================================================================
 
 void US_StartCursor(void)
@@ -364,7 +363,7 @@ boolean US_UpdateCursor(void)
 }
 
 // ========================================================================
-// Line input (stub)
+// Line input
 // ========================================================================
 
 boolean US_LineInput(int x, int y, char *buf, char *def, boolean escok,
