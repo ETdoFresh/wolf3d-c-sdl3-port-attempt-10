@@ -667,8 +667,19 @@ void IN_SetupJoy(int joy, int xmin, int xmax, int ymin, int ymax)
 
 word IN_JoyButtons(void)
 {
-    // Return 0 - no joystick buttons implemented in SDL3 port yet
-    return 0;
+    // Aggregate buttons from all opened joysticks into Wolf3D's expected
+    // 4-bit packed format (bit i = button i pressed on any joystick).
+    word buttons = 0;
+    for (int j = 0; j < MaxJoys; j++) {
+        if (!in_joysticks[j]) continue;
+        int nb = SDL_GetNumJoystickButtons(in_joysticks[j]);
+        if (nb > 4) nb = 4;
+        for (int b = 0; b < nb; b++) {
+            if (SDL_GetJoystickButton(in_joysticks[j], b))
+                buttons |= (1 << b);
+        }
+    }
+    return buttons;
 }
 
 void INL_GetJoyDelta(int joy, int *dx, int *dy)
