@@ -298,16 +298,13 @@ static void IN_PumpEvents(void)
             mouseDY += (int)SDL_lroundf(event.motion.yrel);
             break;
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
-            if (event.button.button == 1) mouseButtons |= 1;
-            if (event.button.button == 2) mouseButtons |= 4;
-            if (event.button.button == 3) mouseButtons |= 2;
-            if (event.button.button == 4) mouseButtons |= 8;
-            break;
         case SDL_EVENT_MOUSE_BUTTON_UP:
-            if (event.button.button == 1) mouseButtons &= ~1;
-            if (event.button.button == 2) mouseButtons &= ~4;
-            if (event.button.button == 3) mouseButtons &= ~2;
-            if (event.button.button == 4) mouseButtons &= ~8;
+            // Don't trust per-event edges alone (we've seen phantom BUTTON_DOWN
+            // events on mouse motion from some Windows raw-input drivers,
+            // which would leave the button "stuck" in mouseButtons). The
+            // authoritative state poll below catches both edges and any
+            // missed UP that would otherwise wedge the player into permanent
+            // fire-mode.
             break;
         case SDL_EVENT_QUIT:
             // Cooperative shutdown — let Quit() flush config, free SDL
@@ -317,6 +314,20 @@ static void IN_PumpEvents(void)
         default:
             break;
         }
+    }
+
+    // Re-sync mouseButtons from SDL3's authoritative state. The DOWN/UP
+    // events fire on edges, but if either edge is missed (focus loss,
+    // relative-mode transition, raw-input quirks) the per-event accumulator
+    // would stick. Polling here keeps mouseButtons matched to physical state.
+    {
+        SDL_MouseButtonFlags state = SDL_GetMouseState(NULL, NULL);
+        int mb = 0;
+        if (state & SDL_BUTTON_LMASK) mb |= 1;   // left
+        if (state & SDL_BUTTON_RMASK) mb |= 2;   // right
+        if (state & SDL_BUTTON_MMASK) mb |= 4;   // middle
+        if (state & SDL_BUTTON_X1MASK) mb |= 8;
+        mouseButtons = mb;
     }
 }
 
@@ -493,6 +504,14 @@ char IN_WaitForASCII(void)
 void IN_ReadCursor(CursorInfo *ci)
 {
     IN_PumpEvents();
+
+    // wl_menu.c calls this with NULL just to pump events / consume deltas;
+    // be tolerant of that instead of dereferencing.
+    if (!ci) {
+        mouseDX = 0;
+        mouseDY = 0;
+        return;
+    }
 
     memset(ci, 0, sizeof(CursorInfo));
 
