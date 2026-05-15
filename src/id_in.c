@@ -429,6 +429,7 @@ char IN_WaitForASCII(void)
             IN_ClearKeysDown();
             return result;
         }
+        SDL_Delay(5);
     }
 }
 
