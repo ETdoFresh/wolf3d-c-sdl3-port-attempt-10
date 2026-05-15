@@ -1217,6 +1217,39 @@ int main(int argc, char *argv[])
         Quit(NULL);
     }
 
+    if (MS_CheckParm("test-cutscene-intermission"))
+    {
+        // Render the LevelCompleted intermission directly so the harness
+        // can capture it without driving the player into an elevator.
+        NewGame(gd_Normal, 0);
+        SetupGameLevel();
+        gamestate.killtotal = 10; gamestate.killcount = 7;
+        gamestate.secrettotal = 4; gamestate.secretcount = 2;
+        gamestate.treasuretotal = 20; gamestate.treasurecount = 12;
+        gamestate.TimeCount = 70 * 75;  // 1:15
+        LevelCompleted();
+        VL_Present();
+        VL_Present();
+        printf("test-cutscene-intermission: rendered\n");
+        Quit(NULL);
+    }
+
+    if (MS_CheckParm("test-cutscene-victory"))
+    {
+        // Render the Victory ("You Win") end-of-episode screen.
+        NewGame(gd_Normal, 0);
+        SetupGameLevel();
+        gamestate.killtotal = 10; gamestate.killcount = 10;
+        gamestate.secrettotal = 4; gamestate.secretcount = 4;
+        gamestate.treasuretotal = 20; gamestate.treasurecount = 20;
+        gamestate.TimeCount = 70 * 60 * 5;  // 5:00
+        Victory();
+        VL_Present();
+        VL_Present();
+        printf("test-cutscene-victory: rendered\n");
+        Quit(NULL);
+    }
+
     DemoLoop();
 
     // Should never reach here
