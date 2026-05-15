@@ -78,12 +78,16 @@ void VW_DrawPropString(const char *string)
         int width = font->width[ch];
         if (width == 0) continue;
 
+        // Original Wolf3D fontstruct stores glyphs row-major: for column c,
+        // row r, the byte is at font + location[ch] + r*width + c
+        // (see ID_VH.C VW_DrawPropString: `source[i*step]` with step==width
+        // and `source++` between columns).
         byte *source = ((byte *)font) + font->location[ch];
-        for (int col = 0; col < width; col++)
+        for (int row = 0; row < height; row++)
         {
-            for (int row = 0; row < height; row++)
+            for (int col = 0; col < width; col++)
             {
-                if (source[col * height + row])
+                if (source[row * width + col])
                 {
                     int sx = PrintX + col;
                     int sy = PrintY + row;

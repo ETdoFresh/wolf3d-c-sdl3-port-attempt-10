@@ -77,7 +77,8 @@ static word        al_length_left = 0;
 static byte        al_block = 0;
 static long        al_sfx_accumulator = 0;    // for 140Hz ticking
 static Uint64      al_sfx_last_ms = 0;
-#define SFX_RATE 140
+#define SFX_RATE   140    // AdLib SFX byte rate (original alSoundSamplePeriod = PIT/140)
+#define MUSIC_RATE_HZ 700 // alTimeCount tick rate (original t0FastAsmService)
 
 #define MAX_CHANNELS 4
 static struct {
@@ -580,7 +581,8 @@ void SD_Poll(void)
     // TimeCount is advanced by CalcTics during gameplay (70Hz).
     // Do NOT increment TimeCount here — that was double-counting.
 
-    // Tick music at 140Hz — original Wolf3D timer 0 ran at 140Hz for alTimeCount.
+    // Tick music at 700Hz — original Wolf3D alTimeCount is bumped from
+    // t0FastAsmService at this rate (Wolf4SDL ALTIMER==700).
     static Uint64 last_music_ms = 0;
     static long music_accumulator = 0;
     Uint64 now = SDL_GetTicks();
@@ -589,7 +591,7 @@ void SD_Poll(void)
     Uint64 elapsed = now - last_music_ms;
     unsigned music_ticks = 0;
     if (elapsed > 0) {
-        music_accumulator += (long)elapsed * SFX_RATE;  // 140Hz
+        music_accumulator += (long)elapsed * MUSIC_RATE_HZ;
         music_ticks = (unsigned)(music_accumulator / 1000);
         music_accumulator %= 1000;
         last_music_ms = now;
