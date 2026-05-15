@@ -14,6 +14,8 @@
 
 extern void Quit(char *error);
 
+static void SD_AlStopSound(void);
+
 // -----------------------------------------------------------------------
 // Public globals
 // -----------------------------------------------------------------------
@@ -53,8 +55,29 @@ static int   music_active = 0;
 #define MUSIC_BUFFER_SAMPLES 4096
 
 // OPL2 register addresses
+#define OPL_CHAR       0x20    // tremolo/vibrato/sustain/multiplier (per slot)
+#define OPL_SCALE      0x40    // key-scale level / output level (per slot)
+#define OPL_ATTACK     0x60    // attack/decay rates (per slot)
+#define OPL_SUS        0x80    // sustain level / release rate (per slot)
+#define OPL_WAVE       0xE0    // waveform select (per slot)
+#define OPL_FEEDCON    0xC0    // feedback/connection (per channel)
+#define OPL_FREQL      0xA0    // frequency low, channels 0-8
 #define OPL_FREQH      0xB0    // frequency high / key-on, channels 0-8
 #define OPL_EFFECTS    0xBD    // percussion/effects register
+
+// Per-channel slot offsets (Wolf3D AdLib SFX uses voice 0 only:
+// modifier slot 0, carrier slot 3).
+static const byte al_modifiers[9] = { 0, 1, 2, 8, 9,10,16,17,18};
+static const byte al_carriers[9]  = { 3, 4, 5,11,12,13,19,20,21};
+
+// AdLib SFX state (single-voice software player, equivalent to original's
+// SDL_ALPlaySound / SDL_ALSoundService running off the 140Hz timer 0 ISR).
+static const byte *al_sound = NULL;
+static word        al_length_left = 0;
+static byte        al_block = 0;
+static long        al_sfx_accumulator = 0;    // for 140Hz ticking
+static Uint32      al_sfx_last_ms = 0;
+#define SFX_RATE 140
 
 #define MAX_CHANNELS 4
 static struct {
@@ -105,9 +128,20 @@ void SD_Startup(void)
 
     SDL_ResumeAudioDevice(audio_device);
 
-    // Init OPL3 emulator for music
+    // Init OPL3 emulator (shared by music + AdLib SFX).
     OPL3_Reset(&opl3, MUSIC_RATE);
     AdLibPresent = true;
+
+    // Create a persistent OPL stream so AdLib SFX can play even when no
+    // music is active. Music start/stop only gates the music event ticker;
+    // the stream itself stays bound for the lifetime of SD.
+    SDL_AudioSpec opl_spec;
+    opl_spec.format = SDL_AUDIO_S16;
+    opl_spec.channels = 2;
+    opl_spec.freq = MUSIC_RATE;
+    music_stream = SDL_CreateAudioStream(&opl_spec, &device_spec);
+    if (music_stream)
+        SDL_BindAudioStream(audio_device, music_stream);
 
     // Enable sound modes
     SoundBlasterPresent = true;
@@ -118,6 +152,12 @@ void SD_Startup(void)
 void SD_Shutdown(void)
 {
     SD_MusicOff();
+    SD_AlStopSound();
+    if (music_stream) {
+        SDL_UnbindAudioStream(music_stream);
+        SDL_DestroyAudioStream(music_stream);
+        music_stream = NULL;
+    }
     for (int ch = 0; ch < MAX_CHANNELS; ch++) {
         if (channels[ch].stream) {
             SDL_UnbindAudioStream(channels[ch].stream);
@@ -218,17 +258,54 @@ static int SD_PlayRaw(byte *data, int datalen, int hertz)
 // Sound playback
 // ========================================================================
 
+// Load an AdLib instrument into OPL voice 0 (equivalent to original
+// SDL_AlSetFXInst). Writes the 10 timbre registers plus feedback/connection.
+static void SD_AlSetFXInst(const Instrument *inst)
+{
+    byte m = al_modifiers[0];
+    byte c = al_carriers[0];
+    OPL3_WriteReg(&opl3, (uint16_t)(OPL_CHAR    + m), inst->mChar);
+    OPL3_WriteReg(&opl3, (uint16_t)(OPL_SCALE   + m), inst->mScale);
+    OPL3_WriteReg(&opl3, (uint16_t)(OPL_ATTACK  + m), inst->mAttack);
+    OPL3_WriteReg(&opl3, (uint16_t)(OPL_SUS     + m), inst->mSus);
+    OPL3_WriteReg(&opl3, (uint16_t)(OPL_WAVE    + m), inst->mWave);
+    OPL3_WriteReg(&opl3, (uint16_t)(OPL_CHAR    + c), inst->cChar);
+    OPL3_WriteReg(&opl3, (uint16_t)(OPL_SCALE   + c), inst->cScale);
+    OPL3_WriteReg(&opl3, (uint16_t)(OPL_ATTACK  + c), inst->cAttack);
+    OPL3_WriteReg(&opl3, (uint16_t)(OPL_SUS     + c), inst->cSus);
+    OPL3_WriteReg(&opl3, (uint16_t)(OPL_WAVE    + c), inst->cWave);
+    // Match original SDL_AlSetFXInst: feedback/connection forced to 0.
+    OPL3_WriteReg(&opl3, (uint16_t)(OPL_FEEDCON + 0), 0);
+}
+
+static void SD_AlStopSound(void)
+{
+    al_sound = NULL;
+    al_length_left = 0;
+    OPL3_WriteReg(&opl3, (uint16_t)(OPL_FREQH + 0), 0);   // key off voice 0
+}
+
+// Play an AdLib SFX (equivalent to SDL_ALPlaySound in original ID_SD.C).
+static boolean SD_AlPlaySound(AdLibSound *sound)
+{
+    if (!sound) return false;
+    SD_AlStopSound();
+
+    al_length_left = (word)sound->common.length;
+    al_sound       = sound->data;
+    al_block       = (byte)(((sound->block & 7) << 2) | 0x20);
+    SD_AlSetFXInst(&sound->inst);
+    al_sfx_last_ms = SDL_GetTicks();
+    al_sfx_accumulator = 0;
+    return true;
+}
+
 int SD_PlaySound(soundnames sound)
 {
-    // PARITY GAP: original SD_PlaySound falls back to SDL_ALPlaySound (AdLib
-    // SFX via OPL channel 0) for any sound whose DigiMap entry is -1, or when
-    // DigiMode is off. This port only plays the digitized variant; sounds that
-    // exist only as AdLib data in the audio chunks are silent. Full parity
-    // requires routing AdLib SFX through the OPL3 emulator alongside music.
     if (sound < 0 || sound >= LASTSOUND) return 0;
     if (!audio_device) return 0;
 
-    // Try digitized sound first
+    // Try digitized sound first (original: DigiMap[sound] != -1 path).
     int digi_index = STARTDIGISOUNDS + sound;
     if (digi_index < NUMSNDCHUNKS) {
         if (!audiosegs[digi_index])
@@ -241,6 +318,22 @@ int SD_PlaySound(soundnames sound)
                 int ch = SD_PlayRaw(sfx->data, data_len, sfx->hertz);
                 if (ch >= 0) {
                     DigiPlaying = true;
+                    SoundNumber = sound;
+                    return sound + 1;
+                }
+            }
+        }
+    }
+
+    // Fall back to AdLib SFX through the OPL3 emulator (original:
+    // SDL_ALPlaySound path when no digi mapping or DigiMode off).
+    if (SoundMode == sdm_AdLib) {
+        int al_index = STARTADLIBSOUNDS + sound;
+        if (al_index < NUMSNDCHUNKS) {
+            if (!audiosegs[al_index])
+                CA_CacheAudioChunk(al_index);
+            if (audiosegs[al_index]) {
+                if (SD_AlPlaySound((AdLibSound *)audiosegs[al_index])) {
                     SoundNumber = sound;
                     return sound + 1;
                 }
@@ -274,6 +367,8 @@ void SD_StopSound(void)
         channels[ch].active = 0;
     }
     DigiPlaying = false;
+    if (al_sound)
+        SD_AlStopSound();
 }
 
 void SD_WaitSoundDone(void)
@@ -299,6 +394,9 @@ int SD_SoundPlaying(void)
             channels[ch].active = 0;
         }
     }
+    // AdLib SFX also counts as a sound playing.
+    if (al_sound)
+        playing = 1;
     // Match the original: return the active sound's number, not a boolean.
     return playing ? SoundNumber : 0;
 }
@@ -334,10 +432,11 @@ void SD_StopDigitized(void)
 // Music - OPL3 via Nuked OPL3 emulator + SDL AudioStream
 // ========================================================================
 
-// Feed OPL3 samples into the music audio stream
+// Feed OPL3 samples into the persistent OPL audio stream. Runs whenever
+// audio is up, so both music ticking and AdLib SFX produce sound.
 static void SD_FillMusicStream(void)
 {
-    if (!music_stream || !music_active) return;
+    if (!music_stream) return;
 
     int avail = SDL_GetAudioStreamAvailable(music_stream);
     if (avail > MUSIC_BUFFER_SAMPLES * 4) return;
@@ -362,23 +461,7 @@ void SD_StartMusic(MusicGroup *music)
     music_time = 0;
     music_next_tick = 0;
     music_active = 1;
-
-    // Create/resume music stream: OPL3 outputs at MUSIC_RATE, stereo 16-bit
-    if (music_stream) {
-        SDL_UnbindAudioStream(music_stream);
-        SDL_DestroyAudioStream(music_stream);
-    }
-
-    SDL_AudioSpec src_spec;
-    src_spec.format = SDL_AUDIO_S16;
-    src_spec.channels = 2;
-    src_spec.freq = MUSIC_RATE;
-
-    music_stream = SDL_CreateAudioStream(&src_spec, &device_spec);
-    if (music_stream) {
-        SDL_BindAudioStream(audio_device, music_stream);
-    }
-
+    // OPL stream is persistent (created at SD_Startup); no per-track setup.
     NeedsMusic = true;
 }
 
@@ -408,16 +491,11 @@ void SD_MusicOff(void)
     music_active = 0;
     NeedsMusic = false;
 
-    // Silence all OPL channels
+    // Silence music voices 1..8 (key-off). Voice 0 is used by AdLib SFX so
+    // leave its key state alone; SD_AlStopSound clears it when SFX ends.
     OPL3_WriteReg(&opl3, OPL_EFFECTS, 0);
-    for (int i = 0; i < 9; i++)
+    for (int i = 1; i < 9; i++)
         OPL3_WriteReg(&opl3, (uint16_t)(OPL_FREQH + i), 0);
-
-    if (music_stream) {
-        SDL_UnbindAudioStream(music_stream);
-        SDL_DestroyAudioStream(music_stream);
-        music_stream = NULL;
-    }
 }
 
 void SD_FadeOutMusic(void)
@@ -479,6 +557,33 @@ void SD_Poll(void)
             music_len = music_seqlen;
             music_time = 0;
             music_next_tick = 0;
+        }
+    }
+
+    // Tick AdLib SFX at 140Hz (original SDL_ALSoundService cadence).
+    if (al_sound) {
+        Uint32 now_sfx = SDL_GetTicks();
+        if (al_sfx_last_ms == 0) al_sfx_last_ms = now_sfx;
+        Uint32 sfx_elapsed = now_sfx - al_sfx_last_ms;
+        if (sfx_elapsed > 0) {
+            al_sfx_accumulator += (long)sfx_elapsed * SFX_RATE;
+            unsigned sfx_ticks = (unsigned)(al_sfx_accumulator / 1000);
+            al_sfx_accumulator %= 1000;
+            al_sfx_last_ms = now_sfx;
+
+            while (sfx_ticks-- && al_sound && al_length_left) {
+                byte s = *al_sound++;
+                if (!s)
+                    OPL3_WriteReg(&opl3, (uint16_t)(OPL_FREQH + 0), 0);
+                else {
+                    OPL3_WriteReg(&opl3, (uint16_t)(OPL_FREQL + 0), s);
+                    OPL3_WriteReg(&opl3, (uint16_t)(OPL_FREQH + 0), al_block);
+                }
+                if (!--al_length_left) {
+                    al_sound = NULL;
+                    OPL3_WriteReg(&opl3, (uint16_t)(OPL_FREQH + 0), 0);
+                }
+            }
         }
     }
 
