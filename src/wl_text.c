@@ -6,7 +6,9 @@
 #include "wl_def.h"
 
 #ifdef __GNUC__
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wformat-overflow"
+#endif
 #pragma GCC diagnostic ignored "-Wchar-subscripts"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
