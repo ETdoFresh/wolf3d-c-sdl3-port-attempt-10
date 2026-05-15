@@ -342,14 +342,14 @@ void	LatchNumber (int x, int y, int width, long number)
 
 	length = strlen (str);
 
-	while (length<width)
+	while (length<(unsigned)width)
 	{
 		StatusDrawPic (x,y,N_BLANKPIC);
 		x++;
 		width--;
 	}
 
-	c= length <= width ? 0 : length-width;
+	c= length <= (unsigned)width ? 0 : length-(unsigned)width;
 
 	while (c<length)
 	{

@@ -240,7 +240,7 @@ void BJ_Breathe(void)
     static int which = 0, max = 10;
     int pics[2] = {L_GUYPIC, L_GUY2PIC};
 
-    if (TimeCount > max)
+    if (TimeCount > (unsigned)max)
     {
         which ^= 1;
         VWB_DrawPic(0, 16, pics[which]);
@@ -678,7 +678,7 @@ void LevelCompleted(void)
 =================
 */
 
-boolean PreloadUpdate(unsigned current, unsigned total)
+boolean PreloadUpdate(word current, word total)
 {
     unsigned w = WindowW - 10;
 

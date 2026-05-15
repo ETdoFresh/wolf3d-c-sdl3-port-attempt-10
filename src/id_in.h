@@ -125,7 +125,7 @@ void IN_Ack(void);
 void IN_AckBack(void);
 char IN_WaitForASCII(void);
 ScanCode IN_WaitForKey(void);
-char *IN_GetScanName(ScanCode scan);
+const char *IN_GetScanName(ScanCode scan);
 void IN_ReadCursor(CursorInfo *ci);
 void IN_ReadControl(int player, ControlInfo *ci);
 void IN_SetControlType(int player, ControlType type);

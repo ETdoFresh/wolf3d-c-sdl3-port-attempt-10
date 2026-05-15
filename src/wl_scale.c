@@ -453,7 +453,7 @@ void ScaleShape(int xcenter, int shapenum, unsigned height)
         //
         if (slinex < 0)
         {
-            if (slinewidth <= (unsigned)(-slinex))
+            if ((unsigned)slinewidth <= (unsigned)(-slinex))
                 continue;   // still off the left edge
 
             slinewidth += slinex;

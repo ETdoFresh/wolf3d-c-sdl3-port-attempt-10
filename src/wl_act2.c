@@ -1512,7 +1512,7 @@ void T_Schabb (objtype *ob)
 	if (CheckLine(ob))						// got a shot at player?
 	{
 
-		if ( US_RndT() < (tics<<3) )
+		if ( (unsigned)US_RndT() < (tics<<3) )
 		{
 		//
 		// go into attack frame
@@ -1604,7 +1604,7 @@ void T_Gift (objtype *ob)
 	if (CheckLine(ob))						// got a shot at player?
 	{
 
-		if ( US_RndT() < (tics<<3) )
+		if ( (unsigned)US_RndT() < (tics<<3) )
 		{
 		//
 		// go into attack frame
@@ -1696,7 +1696,7 @@ void T_Fat (objtype *ob)
 	if (CheckLine(ob))						// got a shot at player?
 	{
 
-		if ( US_RndT() < (tics<<3) )
+		if ( (unsigned)US_RndT() < (tics<<3) )
 		{
 		//
 		// go into attack frame
@@ -2037,7 +2037,8 @@ void A_MechaSound (objtype *ob)
 
 void A_Slurpie (objtype *ob)
 {
- SD_PlaySound(SLURPIESND);
+	(void)ob;
+	SD_PlaySound(SLURPIESND);
 }
 
 /*
@@ -2095,7 +2096,7 @@ void T_Fake (objtype *ob)
 
 	if (CheckLine(ob))			// got a shot at player?
 	{
-		if ( US_RndT() < (tics<<1) )
+		if ( (unsigned)US_RndT() < (tics<<1) )
 		{
 		//
 		// go into attack frame
@@ -2801,6 +2802,7 @@ void T_BJYell (objtype *ob)
 
 void T_BJDone (objtype *ob)
 {
+	(void)ob;
 	playstate = ex_victorious;				// exit castle tile
 }
 

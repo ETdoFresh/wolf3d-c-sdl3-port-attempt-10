@@ -642,8 +642,8 @@ void SetupGameLevel(void)
     if (!map) {
         Quit("SetupGameLevel: map plane 0 not loaded");
     }
-    for (y = 0; y < mapheight; y++)
-        for (x = 0; x < mapwidth; x++)
+    for (y = 0; y < (int)mapheight; y++)
+        for (x = 0; x < (int)mapwidth; x++)
         {
             tile = *map++;
             if (tile < AREATILE)
@@ -669,8 +669,8 @@ void SetupGameLevel(void)
 
     map = mapsegs[0];
     int doorcount = 0;
-    for (y = 0; y < mapheight; y++)
-        for (x = 0; x < mapwidth; x++)
+    for (y = 0; y < (int)mapheight; y++)
+        for (x = 0; x < (int)mapwidth; x++)
         {
             tile = *map++;
             if (tile >= 90 && tile <= 101)
@@ -709,8 +709,8 @@ void SetupGameLevel(void)
     // take out the ambush markers
     //
     map = mapsegs[0];
-    for (y = 0; y < mapheight; y++)
-        for (x = 0; x < mapwidth; x++)
+    for (y = 0; y < (int)mapheight; y++)
+        for (x = 0; x < (int)mapwidth; x++)
         {
             tile = *map++;
             if (tile == AMBUSHTILE)
@@ -1200,7 +1200,6 @@ restartgame:
     SETFONTCOLOR(0, 15);
     DrawPlayScreen();
     died = false;
-restart:
     do
     {
         if (!loadedgame)
@@ -1226,7 +1225,6 @@ restart:
         fizzlein = true;
         DrawLevel();
 
-startplayloop:
         PlayLoop();
 
         StopMusic();

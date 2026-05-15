@@ -155,8 +155,7 @@ char SaveGameNames[10][32], SaveName[13] = "SAVEGAM?.";
 // INPUT MANAGER SCANCODE TABLES
 //
 ////////////////////////////////////////////////////////////////////
-static byte
-    *ScanNames[] = {
+static const char *ScanNames[] = {
     "?", "?", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "+", "?", "?",
     "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "[", "]", "|", "?", "A", "S",
     "D", "F", "G", "H", "J", "K", "L", ";", "\"", "?", "?", "?", "Z", "X", "C", "V",
@@ -165,16 +164,16 @@ static byte
     "\x13", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?",
     "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?",
     "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?"
-},
+};
 
-    ExtScanCodes[] = {
+static byte ExtScanCodes[] = {
     1, 0xe, 0xf, 0x1d, 0x2a, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e,
     0x3f, 0x40, 0x41, 0x42, 0x43, 0x44, 0x57, 0x59, 0x46, 0x1c, 0x36,
     0x37, 0x38, 0x47, 0x49, 0x4f, 0x51, 0x52, 0x53, 0x45, 0x48,
     0x50, 0x4b, 0x4d, 0x00
-},
+};
 
-    *ExtScanNames[] = {
+static const char *ExtScanNames[] = {
     "Esc", "BkSp", "Tab", "Ctrl", "LShft", "Space", "CapsLk", "F1", "F2", "F3", "F4",
     "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "ScrlLk", "Enter", "RShft",
     "PrtSc", "Alt", "Home", "PgUp", "End", "PgDn", "Ins", "Del", "NumLk", "Up",
@@ -547,6 +546,7 @@ int CP_EndGame(void)
 ////////////////////////////////////////////////////////////////////
 void CP_ViewScores(int unused)
 {
+    (void)unused;
     fontnumber = 0;
 
     StartCPMusic(ROSTER_MUS);
@@ -570,6 +570,7 @@ void CP_ViewScores(int unused)
 ////////////////////////////////////////////////////////////////////
 void CP_NewGame(int unused)
 {
+    (void)unused;
     int which, episode = 0;
 
 firstpart:
@@ -709,6 +710,7 @@ void DrawNewGameDiff(int w)
 ////////////////////////////////////////////////////////////////////
 void CP_Sound(int unused)
 {
+    (void)unused;
     int which;
 
     DrawSoundMenu();
@@ -1187,7 +1189,8 @@ int CalibrateJoystick(void)
     #define CALW 158
     #define CALH 140
 
-    unsigned xmin, ymin, xmax, ymax, jb;
+    int xmin, ymin, xmax, ymax;
+    unsigned jb;
 
     DrawWindow(CALX - 5, CALY - 5, CALW, CALH, TEXTCOLOR);
     DrawOutline(CALX - 5, CALY - 5, CALW, CALH, 0, HIGHLIGHT);
@@ -1261,6 +1264,7 @@ int CalibrateJoystick(void)
 ////////////////////////////////////////////////////////////////////
 void CP_Control(int unused)
 {
+    (void)unused;
     #define CTL_SPC 70
     enum {MOUSEENABLE, JOYENABLE, USEPORT2, PADENABLE, MOUSESENS, CUSTOMIZE};
     int which;
@@ -1355,6 +1359,7 @@ void DrawMouseSens(void)
 //
 void MouseSensitivity(int unused)
 {
+    (void)unused;
     ControlInfo ci;
     int exit = 0, oldMA;
 
@@ -1506,6 +1511,7 @@ char mbarray[4][3] = {"b0", "b1", "b2", "b3"},
 
 void CustomControls(int unused)
 {
+    (void)unused;
     int which;
 
     DrawCustomScreen();
@@ -2082,6 +2088,7 @@ void DrawCustKeys(int hilight)
 ////////////////////////////////////////////////////////////////////
 void CP_ChangeView(int unused)
 {
+    (void)unused;
     int exit = 0, oldview, newview;
     ControlInfo ci;
 
@@ -2871,10 +2878,10 @@ void FreeMusic(void)
 // specified scan code
 //
 ///////////////////////////////////////////////////////////////////////////
-byte *
+const char *
 IN_GetScanName(ScanCode scan)
 {
-    byte **p;
+    const char **p;
     byte *s;
 
     for (s = ExtScanCodes, p = ExtScanNames; *s; p++, s++)

@@ -1219,7 +1219,7 @@ static void AsmRefresh (void)
 	long		xstep, ystep;
 	long		xintbuf, yintbuf;
 
-	for (pixx = 0; pixx < viewwidth; pixx++)
+	for (pixx = 0; pixx < (unsigned)viewwidth; pixx++)
 	{
 		//
 		// calculate fine angle for this screen column

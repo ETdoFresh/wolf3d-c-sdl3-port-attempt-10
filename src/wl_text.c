@@ -166,7 +166,7 @@ void TimedPicCommand(void)
     // wait for time
     //
     TimeCount = 0;
-    while (TimeCount < picdelay)
+    while (TimeCount < (unsigned)picdelay)
         ;
 
     //
@@ -272,7 +272,7 @@ void HandleCommand(void)
         //
         // adjust this line if needed
         //
-        if (px < leftmargin[rowon])
+        if (px < (int)leftmargin[rowon])
             px = leftmargin[rowon];
         break;
     }
@@ -373,7 +373,7 @@ void HandleWord(void)
     //
     VW_MeasurePropString(word, &wwidth, &wheight);
 
-    while (px + wwidth > rightmargin[rowon])
+    while (px + wwidth > (int)rightmargin[rowon])
     {
         NewLine();
         if (layoutdone)
