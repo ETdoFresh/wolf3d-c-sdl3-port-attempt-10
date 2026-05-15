@@ -648,10 +648,17 @@ void IN_ClearKey(ScanCode code)
 
 void IN_GetJoyAbs(int joy, int *x, int *y)
 {
-    // Stub - SDL3 joystick absolute position not implemented yet
-    if (x) *x = 0;
-    if (y) *y = 0;
-    (void)joy;
+    if (!x || !y) return;
+    *x = *y = 0;
+    if (joy < 0 || joy >= MaxJoys || !in_joysticks[joy]) return;
+
+    // Original returned raw analog port readings (0..1023 or so). SDL3
+    // gives signed -32768..32767; shift to unsigned 0..65535 then halve so
+    // the magnitude fits the word range IN_SetupJoy thresholds expect.
+    int16_t ax = SDL_GetJoystickAxis(in_joysticks[joy], 0);
+    int16_t ay = SDL_GetJoystickAxis(in_joysticks[joy], 1);
+    *x = ((int)ax + 32768) >> 1;
+    *y = ((int)ay + 32768) >> 1;
 }
 
 void IN_SetupJoy(int joy, int xmin, int xmax, int ymin, int ymax)
