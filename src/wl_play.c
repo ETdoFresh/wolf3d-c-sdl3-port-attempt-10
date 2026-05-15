@@ -1273,11 +1273,6 @@ void DoActor (objtype *ob)
 {
 	void (*think)(objtype *);
 
-	if (ob->areanumber >= NUMAREAS)
-		ob->areanumber = NUMAREAS - 1;
-	if (ob->tilex >= MAPSIZE || ob->tiley >= MAPSIZE)
-		return;
-
 	if (!ob->active && !areabyplayer[ob->areanumber])
 		return;
 
