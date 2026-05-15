@@ -372,8 +372,22 @@ boolean SaveTheGame(intptr_t file, int x, int y)
     for (ob = player; ob; ob = ob->next)
     {
         DiskFlopAnim(x, y);
-        fwrite(ob, sizeof(*ob), 1, fp);
+        // Write actor without next/prev link pointers (they are meaningless
+        // across load cycles and cause save-B vs save-A diffs in the self-test).
+        // Also zero padding after 'flags' (bytes 25-27) for determinism.
+        objtype obcopy = *ob;
+        obcopy.next = NULL;
+        obcopy.prev = NULL;
+        // Clear the 3 bytes of implicit padding between 'flags' (byte) and
+        // 'distance' (long) so the saved bytes are always zero.
+        {
+            byte *p = (byte *)&obcopy;
+            // flags is at offsetof(flags)=24, distance at 28; bytes 25-27 are padding
+            p[25] = p[26] = p[27] = 0;
+        }
+        fwrite(&obcopy, sizeof(obcopy), 1, fp);
     }
+    memset(&nullobj, 0, sizeof(nullobj));
     nullobj.active = ac_badobject;      // end of file marker
     DiskFlopAnim(x, y);
     fwrite(&nullobj, sizeof(nullobj), 1, fp);
@@ -1175,7 +1189,7 @@ int main(int argc, char *argv[])
                 int ca = fgetc(fa), cb = fgetc(fb);
                 if (ca != cb) { if (first_diff < 0) first_diff = i; diffs++; }
             }
-            printf("test-saveload: %ld byte diffs (first at offset %ld)\n", diffs, first_diff);
+            if (diffs) printf("test-saveload: %ld byte diffs (first at offset %ld)\n", diffs, first_diff);
         } else {
             printf("test-saveload: FAIL size mismatch\n");
         }

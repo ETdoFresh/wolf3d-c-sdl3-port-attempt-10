@@ -604,7 +604,7 @@ void SetupGameLevel(void)
         gamestate.treasurecount = 0;
     }
 
-    if (demoplayback || demorecord)
+    if (demoplayback || demorecord || loadedgame)
         US_InitRndT(false);
     else
         US_InitRndT(true);
