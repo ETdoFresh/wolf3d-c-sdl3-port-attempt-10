@@ -154,6 +154,10 @@ void VL_Startup(void)
     // Nearest-neighbor scaling to preserve chunky pixel look
     SDL_SetTextureScaleMode(vl_texture, SDL_SCALEMODE_NEAREST);
 
+    // Hide cursor and capture mouse for FPS-style relative mouse input
+    SDL_HideCursor();
+    SDL_SetWindowRelativeMouseMode(vl_window, true);
+
     // Initialize state
     memset(vl_framebuffer, 0, sizeof(vl_framebuffer));
     memset(vl_curpalette, 0, sizeof(vl_curpalette));
