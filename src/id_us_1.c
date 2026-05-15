@@ -13,7 +13,16 @@
 #include <stdio.h>
 #include <time.h>
 
+#include <SDL3/SDL.h>
+
 extern void Quit(char *error);
+extern boolean Keyboard[];
+extern ScanCode LastScan;
+extern char LastASCII;
+extern void VW_UpdateScreen(void);
+extern boolean IN_CheckAck(void);    // also pumps SDL events as a side-effect
+extern void SD_Poll(void);
+extern void VL_Present(void);
 
 // -----------------------------------------------------------------------
 // Public globals
@@ -358,14 +367,6 @@ boolean US_LineInput(int x, int y, char *buf, char *def, boolean escok,
     // Minimal port of original WL_US_1.C US_LineInput: edit a text string
     // in place at (x,y), supporting return/escape/backspace/printable chars.
     // Returns true on Return, false on Escape (when escok).
-    extern boolean Keyboard[];
-    extern ScanCode LastScan;
-    extern char LastASCII;
-    extern void VW_UpdateScreen(void);
-    extern boolean IN_CheckAck(void);    // also pumps SDL events as a side-effect
-    extern void SD_Poll(void);
-    extern void VL_Present(void);
-
     char s[128];
     if (def) strncpy(s, def, sizeof(s) - 1), s[sizeof(s) - 1] = 0;
     else s[0] = 0;
