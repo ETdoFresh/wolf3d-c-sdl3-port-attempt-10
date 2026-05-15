@@ -2,7 +2,7 @@ name: macOS Runtime Test
 on: [push]
 jobs:
   macos:
-        runs-on: macos-13
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
       - name: Configure
