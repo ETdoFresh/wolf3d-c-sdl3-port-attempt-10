@@ -216,8 +216,54 @@ static char IN_TranslateKey(ScanCode sc, SDL_Keymod mod)
 // -----------------------------------------------------------------------
 // SDL event pump - process all pending events
 // -----------------------------------------------------------------------
+// Test hook: WOLF3D_AUTOKEY is a comma-separated list of "ms:scancode"
+// pairs, e.g. "1000:28,1500:1" → at 1000ms press scancode 28 (Enter),
+// at 1500ms press scancode 1 (Escape). Used to capture menu states
+// headlessly without depending on a real keyboard.
+static void IN_PumpAutoKey(void)
+{
+    static int parsed = 0;
+    static int n_events = 0;
+    static struct { Uint64 ms; ScanCode sc; int fired; } events[32];
+    if (!parsed) {
+        parsed = 1;
+        const char *spec = SDL_getenv("WOLF3D_AUTOKEY");
+        if (!spec) { n_events = 0; return; }
+        const char *p = spec;
+        while (*p && n_events < 32) {
+            char *end;
+            unsigned long ms = strtoul(p, &end, 10);
+            if (*end != ':') break;
+            p = end + 1;
+            unsigned long sc = strtoul(p, &end, 10);
+            events[n_events].ms = ms;
+            events[n_events].sc = (ScanCode)sc;
+            events[n_events].fired = 0;
+            n_events++;
+            if (*end != ',') break;
+            p = end + 1;
+        }
+        fprintf(stderr, "AUTOKEY parsed %d events\n", n_events);
+    }
+    Uint64 now = SDL_GetTicks();
+    for (int i = 0; i < n_events; i++) {
+        if (!events[i].fired && now >= events[i].ms) {
+            events[i].fired = 1;
+            ScanCode sc = events[i].sc;
+            if (sc < NumCodes) {
+                Keyboard[sc] = true;
+                LastScan = sc;
+                LastASCII = IN_TranslateKey(sc, 0);
+                fprintf(stderr, "AUTOKEY fired sc=%d at ms=%llu\n", (int)sc,
+                        (unsigned long long)now);
+            }
+        }
+    }
+}
+
 static void IN_PumpEvents(void)
 {
+    IN_PumpAutoKey();
     SDL_Event event;
 
     while (SDL_PollEvent(&event)) {
