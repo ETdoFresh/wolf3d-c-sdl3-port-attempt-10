@@ -600,7 +600,15 @@ void VL_Present(void)
         vl_screenshot_enabled = SDL_getenv("WOLF3D_SCREENSHOT") ? 1 : 0;
     if (vl_screenshot_enabled) {
         static int shot_index = 0;
-        if (vl_frame_count % 18 == 0 && shot_index < 400) {
+        // WOLF3D_SHOT_INTERVAL overrides the default 18-frame cadence so a
+        // long attract-loop run can spread captures across all scenes
+        // (title→credits→scores→demo) without saturating disk I/O.
+        static int shot_interval = -1;
+        if (shot_interval < 0) {
+            const char *iv = SDL_getenv("WOLF3D_SHOT_INTERVAL");
+            shot_interval = (iv && atoi(iv) > 0) ? atoi(iv) : 18;
+        }
+        if (vl_frame_count % shot_interval == 0 && shot_index < 400) {
             char path[64];
             snprintf(path, sizeof(path), "autoshot_%03d.bmp", shot_index++);
             VL_Screenshot(path);

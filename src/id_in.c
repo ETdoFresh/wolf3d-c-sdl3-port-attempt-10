@@ -599,6 +599,10 @@ boolean IN_UserInput(longword delay)
     // delay is in 70Hz ticks; convert to milliseconds for SDL_GetTicks
     Uint64 ms = (Uint64)delay * 1000u / 70u;
     Uint64 target = SDL_GetTicks() + ms;
+    int dbg = SDL_getenv("WOLF3D_INDEBUG") ? 1 : 0;
+    if (dbg) fprintf(stderr, "IN_UserInput delay=%lu ms=%llu target=%llu now=%llu\n",
+                     (unsigned long)delay, (unsigned long long)ms, (unsigned long long)target,
+                     (unsigned long long)SDL_GetTicks());
 
     IN_StartAck();
 
@@ -608,11 +612,14 @@ boolean IN_UserInput(longword delay)
         VL_Present();
 
         if (LastScan != sc_None || mouseButtons || IN_JoyButtons()) {
+            if (dbg) fprintf(stderr, "IN_UserInput EARLY: LastScan=%d mouseButtons=%d joy=%d\n",
+                             (int)LastScan, (int)mouseButtons, (int)IN_JoyButtons());
             IN_ClearKeysDown();
             return true;
         }
     } while (SDL_GetTicks() < target);
 
+    if (dbg) fprintf(stderr, "IN_UserInput TIMEOUT at %llu\n", (unsigned long long)SDL_GetTicks());
     return false;
 }
 
