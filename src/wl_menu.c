@@ -570,7 +570,7 @@ void CP_ViewScores(int unused)
 ////////////////////////////////////////////////////////////////////
 void CP_NewGame(int unused)
 {
-    int which, episode;
+    int which, episode = 0;
 
 firstpart:
 
@@ -1589,7 +1589,7 @@ int moveorder[4] = {LEFT, RIGHT, FWRD, BKWD};
 
 void EnterCtrlData(int index, CustomCtrls *cust, void (*DrawRtn)(int), void (*PrintRtn)(int), int type)
 {
-    int j, exit, tick, redraw, which, x, picked;
+    int j, exit, tick, redraw, which = 0, x = 0, picked;
     ControlInfo ci;
 
     ShootSnd();

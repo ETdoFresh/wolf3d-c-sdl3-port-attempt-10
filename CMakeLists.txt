@@ -23,6 +23,11 @@ add_executable(wolf3d ${WOLF3D_SOURCES})
 target_include_directories(wolf3d PRIVATE src)
 target_link_libraries(wolf3d PRIVATE SDL3::SDL3)
 
+# Link math library on Linux/macOS (MSVC bundles it implicitly)
+if(UNIX)
+    target_link_libraries(wolf3d PRIVATE m)
+endif()
+
 if(MSVC)
     target_compile_options(wolf3d PRIVATE /W4)
     target_compile_definitions(wolf3d PRIVATE _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS)

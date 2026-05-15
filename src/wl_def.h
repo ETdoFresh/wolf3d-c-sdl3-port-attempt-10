@@ -399,7 +399,8 @@ enum	{
 =============================================================================
 */
 
-typedef long fixed;
+// fixed is defined as int32_t in wl_types.h; redeclaring here as long would
+// break on Linux 64-bit where long is 64 bits. wl_types.h definition wins.
 
 typedef enum {
 	di_north,

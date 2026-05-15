@@ -275,7 +275,7 @@ boolean ProjectileTryMove (objtype *ob)
 void T_Projectile (objtype *ob)
 {
 	long	deltax,deltay;
-	int		damage;
+	int		damage = 0;
 	long	speed;
 
 	speed = (long)ob->speed*tics;
@@ -321,6 +321,8 @@ void T_Projectile (objtype *ob)
 			break;
 		case fireobj:
 			damage = (US_RndT() >>3);
+			break;
+		default:
 			break;
 		}
 
@@ -808,7 +810,7 @@ statetype s_gretelshoot8 	= {false,SPR_GRETEL_SHOOT1,10,NULL,NULL,&s_gretelchase
 
 void SpawnStand (enemy_t which, int tilex, int tiley, int dir)
 {
-	word	*map; unsigned tile;
+	word	*map; unsigned tile = 0;
 
 	switch (which)
 	{
@@ -896,7 +898,7 @@ void SpawnDeadGuard (int tilex, int tiley)
 
 void SpawnBoss (int tilex, int tiley)
 {
-	word	*map; unsigned tile;
+	word	*map; unsigned tile = 0;
 
 	SpawnNewObj (tilex,tiley,&s_bossstand);
 	new->speed = SPDPATROL;

@@ -13,6 +13,13 @@
 #include <errno.h>
 #include <sys/stat.h>
 
+// Portable case-insensitive string compare (_stricmp is MSVC-only)
+#ifndef _WIN32
+#  include <strings.h>
+#  define _stricmp   strcasecmp
+#  define _strnicmp  strncasecmp
+#endif
+
 #include "wl_config.h"
 #include "wl_types.h"
 
