@@ -1408,7 +1408,24 @@ void PlayLoop (void)
 		UpdatePaletteShifts ();
 
 		ThreeDRefresh ();
-		
+
+		// Determinism trace: under WOLF3D_INDEBUG, dump player position
+		// every 35 ticks (~0.5s) so demo runs can be diffed against the
+		// original. Position drift between runs of the same demo = RNG
+		// or physics divergence.
+		{
+			static int last_dump = -1;
+			extern int g_argc; (void)g_argc;
+			if (demoplayback && SDL_getenv("WOLF3D_INDEBUG") &&
+				gamestate.TimeCount / 35 != last_dump)
+			{
+				last_dump = gamestate.TimeCount / 35;
+				fprintf(stderr, "DEMOPOS tic=%ld x=%ld y=%ld angle=%d\n",
+						(long)gamestate.TimeCount,
+						(long)player->x, (long)player->y,
+						(int)player->angle);
+			}
+		}
 		//
 		// MAKE FUNNY FACE IF BJ DOESN'T MOVE FOR AWHILE
 		//
