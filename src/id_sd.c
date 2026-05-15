@@ -89,6 +89,7 @@ static struct {
 // returns this enum value (not a boolean) while a sound is active, so callers
 // like UpdateFace() can test SD_SoundPlaying() == GETGATLINGSND.
 static int SoundNumber = 0;
+static word SoundPriority = 0;   // priority of currently playing sound
 
 // L/R volumes for the next sound to play (0..15 each). SD_PositionSound sets
 // these from PlaySoundLocGlobal's SetSoundLoc result; SD_PlayRaw consumes
@@ -335,6 +336,9 @@ int SD_PlaySound(soundnames sound)
             CA_CacheAudioChunk(digi_index);
         if (audiosegs[digi_index]) {
             SampledSound *sfx = (SampledSound *)audiosegs[digi_index];
+            // Priority check: don't interrupt a higher-priority sound
+            if (sfx->common.priority < SoundPriority)
+                return 0;
             int header_size = (int)((intptr_t)sfx->data - (intptr_t)sfx);
             int data_len = (int)sfx->common.length - header_size;
             if (data_len > 0 && sfx->hertz > 0) {
@@ -342,6 +346,7 @@ int SD_PlaySound(soundnames sound)
                 if (ch >= 0) {
                     DigiPlaying = true;
                     SoundNumber = sound;
+                    SoundPriority = sfx->common.priority;
                     positioned_ch = ch;
                     return sound + 1;
                 }
@@ -357,8 +362,13 @@ int SD_PlaySound(soundnames sound)
             if (!audiosegs[al_index])
                 CA_CacheAudioChunk(al_index);
             if (audiosegs[al_index]) {
-                if (SD_AlPlaySound((AdLibSound *)audiosegs[al_index])) {
+                AdLibSound *als = (AdLibSound *)audiosegs[al_index];
+                // Priority check: don't interrupt a higher-priority sound
+                if (als->common.priority < SoundPriority)
+                    return 0;
+                if (SD_AlPlaySound(als)) {
                     SoundNumber = sound;
+                    SoundPriority = als->common.priority;
                     return sound + 1;
                 }
             }
@@ -403,6 +413,7 @@ void SD_StopSound(void)
     DigiPlaying = false;
     SoundPositioned = false;
     positioned_ch = -1;
+    SoundPriority = 0;
     if (al_sound)
         SD_AlStopSound();
 }
@@ -437,6 +448,9 @@ int SD_SoundPlaying(void)
     // AdLib SFX also counts as a sound playing.
     if (al_sound)
         playing = 1;
+    // When nothing is playing, reset priority so the next sound always plays.
+    if (!playing)
+        SoundPriority = 0;
     // Match the original: return the active sound's number, not a boolean.
     return playing ? SoundNumber : 0;
 }
