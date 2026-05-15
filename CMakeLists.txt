@@ -37,6 +37,10 @@ if(MSVC)
     endif()
 else()
     target_compile_options(wolf3d PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    # Clang (macOS) flags static-in-inline as an error; opl3.c uses this pattern intentionally
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+        target_compile_options(wolf3d PRIVATE -Wno-static-in-inline)
+    endif()
 endif()
 
 # Copy assets directory to build output
