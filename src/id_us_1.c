@@ -355,11 +355,78 @@ boolean US_UpdateCursor(void)
 boolean US_LineInput(int x, int y, char *buf, char *def, boolean escok,
                      int maxchars, int maxwidth)
 {
-    // Stub: return empty string immediately
-    if (buf) buf[0] = '\0';
-    (void)x; (void)y; (void)def; (void)escok;
-    (void)maxchars; (void)maxwidth;
-    return true;
+    // Minimal port of original WL_US_1.C US_LineInput: edit a text string
+    // in place at (x,y), supporting return/escape/backspace/printable chars.
+    // Returns true on Return, false on Escape (when escok).
+    extern boolean Keyboard[];
+    extern ScanCode LastScan;
+    extern char LastASCII;
+    extern void VW_UpdateScreen(void);
+    extern boolean IN_CheckAck(void);    // also pumps SDL events as a side-effect
+    extern void SD_Poll(void);
+    extern void VL_Present(void);
+
+    char s[128];
+    if (def) strncpy(s, def, sizeof(s) - 1), s[sizeof(s) - 1] = 0;
+    else s[0] = 0;
+    if (maxchars <= 0 || maxchars > (int)sizeof(s) - 1) maxchars = sizeof(s) - 1;
+    (void)maxwidth;
+
+    int oldX = PrintX, oldY = PrintY;
+    PrintX = x; PrintY = y;
+    USL_DrawString(s);
+    USL_DrawString("_");           // simple cursor
+    VW_UpdateScreen();
+
+    LastScan = sc_None;
+    LastASCII = 0;
+    while (1) {
+        // IN_CheckAck pumps SDL events as a side-effect, populating
+        // LastScan/LastASCII via the Keyboard array.
+        IN_CheckAck();
+        SD_Poll();
+        VL_Present();
+
+        if (LastScan == sc_Return) {
+            if (buf) strncpy(buf, s, maxchars), buf[maxchars] = 0;
+            LastScan = sc_None;
+            PrintX = oldX; PrintY = oldY;
+            return true;
+        }
+        if (LastScan == sc_Escape && escok) {
+            LastScan = sc_None;
+            PrintX = oldX; PrintY = oldY;
+            return false;
+        }
+
+        char c = LastASCII;
+        ScanCode sc = LastScan;
+        LastASCII = 0;
+        LastScan = sc_None;
+
+        int len = (int)strlen(s);
+        boolean changed = false;
+        if (sc == sc_BackSpace && len > 0) {
+            s[--len] = 0;
+            changed = true;
+        } else if (c >= ' ' && c <= '~' && len < maxchars) {
+            s[len++] = c;
+            s[len] = 0;
+            changed = true;
+        }
+
+        if (changed) {
+            // Redraw: blank the area, then draw the updated string + cursor.
+            // VWB_Bar would need a background colour; rely on the menu redraw
+            // call sites to repaint between keystrokes.
+            PrintX = x; PrintY = y;
+            USL_DrawString(s);
+            USL_DrawString("_ ");   // trailing space erases prior tail char
+            VW_UpdateScreen();
+        }
+
+        SDL_Delay(15);
+    }
 }
 
 // ========================================================================
