@@ -52,7 +52,7 @@ void VW_Shutdown(void)
 // Text rendering
 // ========================================================================
 
-void VW_MeasurePropString(char *string, word *width, word *height)
+void VW_MeasurePropString(const char *string, word *width, word *height)
 {
     fontstruct *font = (fontstruct *)grsegs[STARTFONT + fontnumber];
     if (!font) { if (width) *width = 0; if (height) *height = 0; return; }
@@ -64,7 +64,7 @@ void VW_MeasurePropString(char *string, word *width, word *height)
     if (width) *width = w;
 }
 
-void VW_DrawPropString(char *string)
+void VW_DrawPropString(const char *string)
 {
     fontstruct *font = (fontstruct *)grsegs[STARTFONT + fontnumber];
     if (!font) return;
@@ -236,7 +236,7 @@ void VWB_Plot(int x, int y, int color) { VW_Plot(x, y, color); }
 void VWB_Hlin(int x1, int x2, int y, int color) { VW_Hlin(x1, x2, y, color); }
 void VWB_Vlin(int y1, int y2, int x, int color) { VW_Vlin(y1, y2, x, color); }
 void VWB_DrawPic(int x, int y, int picnum) { VW_DrawPic(x, y, picnum); }
-void VWB_DrawPropString(char *str) { VW_DrawPropString(str); }
+void VWB_DrawPropString(const char *str) { VW_DrawPropString(str); }
 void VWB_DrawTile8(int x, int y, int tile) { VW_DrawTile8(x, y, tile); }
 void VWB_DrawTile8M(int x, int y, int tile) { VW_DrawTile8M(x, y, tile); }
 void VWB_DrawTile16(int x, int y, int tile) { VW_DrawTile16(x, y, tile); }

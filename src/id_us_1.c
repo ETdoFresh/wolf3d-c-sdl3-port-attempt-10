@@ -44,12 +44,12 @@ boolean  Button1        = false;
 boolean  CursorBad      = false;
 
 // Forward declarations from id_vh.c
-extern void VW_MeasurePropString(char *string, word *width, word *height);
-extern void VW_DrawPropString(char *string);
+extern void VW_MeasurePropString(const char *string, word *width, word *height);
+extern void VW_DrawPropString(const char *string);
 
 // Function pointers for string measurement/drawing
-void (*USL_MeasureString)(char *, word *, word *) = VW_MeasurePropString;
-void (*USL_DrawString)(char *) = VW_DrawPropString;
+void (*USL_MeasureString)(const char *, word *, word *) = VW_MeasurePropString;
+void (*USL_DrawString)(const char *) = VW_DrawPropString;
 int      CursorX        = 0;
 int      CursorY        = 0;
 SaveGame Games[MaxSaveGames];
@@ -246,13 +246,13 @@ void US_ClearWindow(void)
 static void (*custom_measure)(char *, word *, word *) = NULL;
 static void (*custom_draw)(char *) = NULL;
 
-void US_SetPrintRoutines(void (*measure)(char *, word *, word *), void (*draw)(char *))
+void US_SetPrintRoutines(void (*measure)(const char *, word *, word *), void (*draw)(const char *))
 {
     custom_measure = measure;
     custom_draw    = draw;
 }
 
-void US_PrintCentered(char *s)
+void US_PrintCentered(const char *s)
 {
     word w, h;
     USL_MeasureString(s, &w, &h);
@@ -260,7 +260,7 @@ void US_PrintCentered(char *s)
     US_Print(s);
 }
 
-void US_CPrint(char *s)
+void US_CPrint(const char *s)
 {
     char c, *se;
     word w, h;
@@ -290,12 +290,12 @@ void US_CPrint(char *s)
     }
 }
 
-void US_CPrintLine(char *s)
+void US_CPrintLine(const char *s)
 {
     US_CPrint(s);
 }
 
-void US_Print(char *s)
+void US_Print(const char *s)
 {
     char c, *se;
     word w, h;

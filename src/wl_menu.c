@@ -12,9 +12,11 @@
 #pragma GCC diagnostic ignored "-Wparentheses"
 #pragma GCC diagnostic ignored "-Wdangling-else"
 #pragma GCC diagnostic ignored "-Wmissing-braces"
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
-#pragma GCC diagnostic ignored "-Wunused-result"
 #pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
+#pragma GCC diagnostic ignored "-Wunused-result"
 #endif
 
 //

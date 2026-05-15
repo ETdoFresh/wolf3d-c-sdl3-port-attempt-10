@@ -22,8 +22,8 @@
 
 void VW_Startup(void);
 void VW_Shutdown(void);
-void VW_MeasurePropString(char *string, word *width, word *height);
-void VW_DrawPropString(char *string);
+void VW_MeasurePropString(const char *string, word *width, word *height);
+void VW_DrawPropString(const char *string);
 void VW_DrawTile8(int x, int y, int tile);
 void VW_DrawTile8M(int x, int y, int tile);
 void VW_DrawTile16(int x, int y, int tile);
@@ -45,7 +45,7 @@ void VWB_Plot(int x, int y, int color);
 void VWB_Hlin(int x1, int x2, int y, int color);
 void VWB_Vlin(int y1, int y2, int x, int color);
 void VWB_DrawPic(int x, int y, int picnum);
-void VWB_DrawPropString(char *str);
+void VWB_DrawPropString(const char *str);
 void VWB_DrawTile8(int x, int y, int tile);
 void VWB_DrawTile8M(int x, int y, int tile);
 void VWB_DrawTile16(int x, int y, int tile);
