@@ -216,15 +216,15 @@ void US_ControlPanel(byte scancode)
             goto finishup;
 
         case sc_F4:
-            CP_Sound();
+            CP_Sound(0);
             goto finishup;
 
         case sc_F5:
-            CP_ChangeView();
+            CP_ChangeView(0);
             goto finishup;
 
         case sc_F6:
-            CP_Control();
+            CP_Control(0);
             goto finishup;
 
         finishup:
@@ -545,7 +545,7 @@ int CP_EndGame(void)
 // VIEW THE HIGH SCORES
 //
 ////////////////////////////////////////////////////////////////////
-void CP_ViewScores(void)
+void CP_ViewScores(int unused)
 {
     fontnumber = 0;
 
@@ -568,7 +568,7 @@ void CP_ViewScores(void)
 // START A NEW GAME
 //
 ////////////////////////////////////////////////////////////////////
-void CP_NewGame(void)
+void CP_NewGame(int unused)
 {
     int which, episode;
 
@@ -707,7 +707,7 @@ void DrawNewGameDiff(int w)
 // HANDLE SOUND MENU
 //
 ////////////////////////////////////////////////////////////////////
-void CP_Sound(void)
+void CP_Sound(int unused)
 {
     int which;
 
@@ -1259,7 +1259,7 @@ int CalibrateJoystick(void)
 // DEFINE CONTROLS
 //
 ////////////////////////////////////////////////////////////////////
-void CP_Control(void)
+void CP_Control(int unused)
 {
     #define CTL_SPC 70
     enum {MOUSEENABLE, JOYENABLE, USEPORT2, PADENABLE, MOUSESENS, CUSTOMIZE};
@@ -1353,7 +1353,7 @@ void DrawMouseSens(void)
 //
 // ADJUST MOUSE SENSITIVITY
 //
-void MouseSensitivity(void)
+void MouseSensitivity(int unused)
 {
     ControlInfo ci;
     int exit = 0, oldMA;
@@ -1504,7 +1504,7 @@ char mbarray[4][3] = {"b0", "b1", "b2", "b3"},
      order[4] = {RUN, OPEN, FIRE, STRAFE};
 
 
-void CustomControls(void)
+void CustomControls(int unused)
 {
     int which;
 
@@ -2080,7 +2080,7 @@ void DrawCustKeys(int hilight)
 // CHANGE SCREEN VIEWING SIZE
 //
 ////////////////////////////////////////////////////////////////////
-void CP_ChangeView(void)
+void CP_ChangeView(int unused)
 {
     int exit = 0, oldview, newview;
     ControlInfo ci;
@@ -2366,7 +2366,7 @@ int HandleMenu(CP_iteminfo *item_i, CP_itemtype *items, void (*routine)(int w))
     timer = 8;
     exit = 0;
     {
-        Uint32 animStart = SDL_GetTicks();
+        Uint64 animStart = SDL_GetTicks();
         IN_ClearKeysDown();
 
         do
@@ -2608,7 +2608,7 @@ void DrawGun(CP_iteminfo *item_i, CP_itemtype *items, int x, int *y, int which, 
 void TicDelay(int count)
 {
     ControlInfo ci;
-    Uint32 start = SDL_GetTicks();
+    Uint64 start = SDL_GetTicks();
 
     do
     {
