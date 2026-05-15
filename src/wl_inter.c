@@ -7,8 +7,10 @@
 
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wchar-subscripts"
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 #pragma GCC diagnostic ignored "-Wformat-overflow"
+#endif
 #endif
 /* itoa/ltoa/ultoa are non-standard; provide portable equivalents */
 #ifndef _WIN32

@@ -37,9 +37,12 @@ if(MSVC)
     endif()
 else()
     target_compile_options(wolf3d PRIVATE -Wall -Wextra -Wpedantic -Werror)
-    # Clang-specific: suppress warnings that GCC doesn't emit for intentional Wolf3D patterns
+    # Clang-specific: suppress warnings that GCC doesn't emit for Wolf3D patterns
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-        target_compile_options(wolf3d PRIVATE -Wno-static-in-inline -Wno-unused-function)
+        target_compile_options(wolf3d PRIVATE
+            -Wno-static-in-inline
+            -Wno-unused-function
+            -Wno-unused-but-set-variable)
     endif()
 endif()
 

@@ -672,7 +672,6 @@ void SetupGameLevel(void)
     InitStaticList();
 
     map = mapsegs[0];
-    int doorcount = 0;
     for (y = 0; y < (int)mapheight; y++)
         for (x = 0; x < (int)mapwidth; x++)
         {
@@ -680,7 +679,6 @@ void SetupGameLevel(void)
             if (tile >= 90 && tile <= 101)
             {
             // door
-                doorcount++;
                 switch (tile)
                 {
                 case 90:
