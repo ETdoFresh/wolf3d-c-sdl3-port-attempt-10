@@ -1143,7 +1143,7 @@ void DrawPlayerWeapon (void)
 void CalcTics (void)
 {
 	static Uint64 last_sdl_ticks = 0;
-	Uint32 now, elapsed;
+	Uint64 now, elapsed;
 
 //
 // Use SDL_GetTicks for timing (original used hardware timer interrupt)
@@ -1157,7 +1157,7 @@ void CalcTics (void)
 // Cap at ~70 fps (14ms per frame)
 	if (elapsed < 14)
 	{
-		SDL_Delay(14 - elapsed);
+		SDL_Delay((Uint32)(14 - elapsed));
 		now = SDL_GetTicks();
 		elapsed = now - last_sdl_ticks;
 	}
