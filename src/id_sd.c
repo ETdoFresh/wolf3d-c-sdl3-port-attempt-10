@@ -96,6 +96,10 @@ static int SoundNumber = 0;
 static int pending_left  = 15;
 static int pending_right = 15;
 
+// Channel index of the most recently started positioned (digi) sound, or -1.
+// SD_SetPosition uses this to update the in-flight stream gain.
+static int positioned_ch = -1;
+
 // ========================================================================
 // Startup / Shutdown
 // ========================================================================
@@ -336,6 +340,7 @@ int SD_PlaySound(soundnames sound)
                 if (ch >= 0) {
                     DigiPlaying = true;
                     SoundNumber = sound;
+                    positioned_ch = ch;
                     return sound + 1;
                 }
             }
@@ -369,12 +374,18 @@ void SD_PositionSound(int leftvol, int rightvol)
 
 void SD_SetPosition(int leftvol, int rightvol)
 {
-    // For an in-flight positioned sound the original DOS code rewrote the
-    // current channel volume each tic. With per-sound stereo pre-mixing this
-    // would require re-encoding the queued samples; treat as a no-op (the
-    // initial L/R from SD_PositionSound stays for the sound's duration).
-    (void)leftvol;
-    (void)rightvol;
+    // Update the in-flight positioned digi channel's volume. The original DOS
+    // code reprogrammed the SB DMA volume registers each tic. We can't
+    // re-encode the already-queued PCM samples, so approximate by adjusting
+    // the SDL3 stream gain using the louder of the two channels (preserves
+    // distance falloff while losing mono pan direction).
+    if (positioned_ch < 0 || positioned_ch >= MAX_CHANNELS) return;
+    if (!channels[positioned_ch].active || !channels[positioned_ch].stream) return;
+
+    int louder = leftvol > rightvol ? leftvol : rightvol;
+    if (louder < 0)  louder = 0;
+    if (louder > 15) louder = 15;
+    SDL_SetAudioStreamGain(channels[positioned_ch].stream, louder / 15.0f);
 }
 
 void SD_StopSound(void)
