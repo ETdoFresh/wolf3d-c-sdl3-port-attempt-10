@@ -1068,6 +1068,12 @@ void DemoLoop(void)
 //
     StartCPMusic(INTROSONG);
 
+    // Test hook: WOLF3D_NOWAIT=1 skips the title/credits/scores/demo
+    // attract sequence and jumps straight to the main menu. Used by the
+    // headless screenshot harness to capture menu rendering.
+    if (SDL_getenv("WOLF3D_NOWAIT"))
+        NoWait = true;
+
     while (1)
     {
         while (!NoWait)
