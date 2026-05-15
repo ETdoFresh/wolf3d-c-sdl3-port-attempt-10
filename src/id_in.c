@@ -246,8 +246,10 @@ static void IN_PumpEvents(void)
             break;
         }
         case SDL_EVENT_MOUSE_MOTION:
-            mouseDX += event.motion.xrel;
-            mouseDY += event.motion.yrel;
+            // SDL3 reports rel motion as float (sub-pixel). Round to integer
+            // since the game's mouseDX/DY (and the original DOS API) are int.
+            mouseDX += (int)SDL_lroundf(event.motion.xrel);
+            mouseDY += (int)SDL_lroundf(event.motion.yrel);
             break;
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
             if (event.button.button == 1) mouseButtons |= 1;
