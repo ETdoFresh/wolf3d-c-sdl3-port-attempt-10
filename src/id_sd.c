@@ -90,6 +90,12 @@ static struct {
 // like UpdateFace() can test SD_SoundPlaying() == GETGATLINGSND.
 static int SoundNumber = 0;
 
+// L/R volumes for the next sound to play (0..15 each). SD_PositionSound sets
+// these from PlaySoundLocGlobal's SetSoundLoc result; SD_PlayRaw consumes
+// them and resets to centered (15/15) for the next non-positional sound.
+static int pending_left  = 15;
+static int pending_right = 15;
+
 // ========================================================================
 // Startup / Shutdown
 // ========================================================================
@@ -224,10 +230,11 @@ static int SD_PlayRaw(byte *data, int datalen, int hertz)
         SDL_DestroyAudioStream(channels[ch].stream);
     }
 
-    // Create stream: source is 16-bit signed mono at the sound's rate, dest is device format
+    // Create stream: source is 16-bit signed stereo at the sound's rate so
+    // we can apply per-channel L/R gains from SetSoundLoc for positional audio.
     SDL_AudioSpec src_spec;
     src_spec.format = SDL_AUDIO_S16;
-    src_spec.channels = 1;
+    src_spec.channels = 2;
     src_spec.freq = hertz;
 
     channels[ch].stream = SDL_CreateAudioStream(&src_spec, &device_spec);
@@ -239,14 +246,24 @@ static int SD_PlayRaw(byte *data, int datalen, int hertz)
         return -1;
     }
 
-    // Convert 8-bit unsigned to 16-bit signed and queue
-    int16_t *converted = (int16_t *)malloc((size_t)datalen * sizeof(int16_t));
+    // Original Wolf3D positional volumes are 0..15 (15 = full, 0 = silent).
+    // SetSoundLoc clamps to that range; SD_PositionSound stores the values
+    // here. A center-position sound has both at 15.
+    int lvol = (pending_left  >= 0 && pending_left  <= 15) ? pending_left  : 15;
+    int rvol = (pending_right >= 0 && pending_right <= 15) ? pending_right : 15;
+    // Reset to centered for the next sound (original behavior).
+    pending_left = pending_right = 15;
+
+    // Convert 8-bit unsigned to 16-bit signed stereo, applying L/R gains.
+    int16_t *converted = (int16_t *)malloc((size_t)datalen * 2 * sizeof(int16_t));
     if (!converted) return -1;
     for (int i = 0; i < datalen; i++) {
-        converted[i] = (int16_t)(((int)data[i] - 128) << 8);
+        int16_t sample = (int16_t)(((int)data[i] - 128) << 8);
+        converted[i*2  ] = (int16_t)((sample * lvol) / 15);
+        converted[i*2+1] = (int16_t)((sample * rvol) / 15);
     }
 
-    SDL_PutAudioStreamData(channels[ch].stream, converted, datalen * (int)sizeof(int16_t));
+    SDL_PutAudioStreamData(channels[ch].stream, converted, datalen * 2 * (int)sizeof(int16_t));
     SDL_FlushAudioStream(channels[ch].stream); // no more data coming
     free(converted);
 
@@ -344,16 +361,20 @@ int SD_PlaySound(soundnames sound)
     return 0;
 }
 
-void SD_PositionSound(int x, int y)
+void SD_PositionSound(int leftvol, int rightvol)
 {
-    (void)x;
-    (void)y;
+    pending_left  = leftvol;
+    pending_right = rightvol;
 }
 
-void SD_SetPosition(int x, int y)
+void SD_SetPosition(int leftvol, int rightvol)
 {
-    (void)x;
-    (void)y;
+    // For an in-flight positioned sound the original DOS code rewrote the
+    // current channel volume each tic. With per-sound stereo pre-mixing this
+    // would require re-encoding the queued samples; treat as a no-op (the
+    // initial L/R from SD_PositionSound stays for the sound's duration).
+    (void)leftvol;
+    (void)rightvol;
 }
 
 void SD_StopSound(void)
