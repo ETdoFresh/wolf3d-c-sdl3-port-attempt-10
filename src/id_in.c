@@ -259,7 +259,9 @@ static void IN_PumpEvents(void)
             if (event.button.button == 4) mouseButtons &= ~8;
             break;
         case SDL_EVENT_QUIT:
-            _exit(0);
+            // Cooperative shutdown — let Quit() flush config, free SDL
+            // resources, and call ShutdownId. _exit(0) bypassed all of it.
+            Quit(NULL);
             break;
         default:
             break;
