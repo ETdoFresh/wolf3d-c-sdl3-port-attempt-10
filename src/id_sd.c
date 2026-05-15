@@ -487,6 +487,17 @@ void SD_StopDigitized(void)
 // Music - OPL3 via Nuked OPL3 emulator + SDL AudioStream
 // ========================================================================
 
+// Test helper: pull one mono OPL3 sample (left channel) from the chip
+// directly, bypassing the SDL audio stream. Used by -test-audio-sfx to
+// verify the SFX path actually drives the emulator.
+short sd_pull_opl_sample(void);
+short sd_pull_opl_sample(void)
+{
+    short buf[2];
+    OPL3_GenerateResampled(&opl3, buf);
+    return buf[0];
+}
+
 // Feed OPL3 samples into the persistent OPL audio stream. Runs whenever
 // audio is up, so both music ticking and AdLib SFX produce sound.
 static void SD_FillMusicStream(void)

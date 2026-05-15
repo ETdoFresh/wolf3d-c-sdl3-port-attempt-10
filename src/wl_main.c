@@ -1234,6 +1234,33 @@ int main(int argc, char *argv[])
         Quit(NULL);
     }
 
+    if (MS_CheckParm("test-audio-sfx"))
+    {
+        // Trigger an AdLib sound effect, then dump 0.5s of OPL3 samples
+        // to verify the audio pipeline produces non-silent output.
+        // Confirms SFX path (not just music) drives the emulator.
+        SoundMode = sdm_AdLib;
+        int rc = SD_PlaySound(HITWALLSND);  // a short AdLib SFX
+        // Pull 0.5s of raw OPL samples directly from the chip.
+        extern short sd_pull_opl_sample(void);
+        long peak = 0, nonzero = 0;
+        const int N = 22050;  // ~0.5s at 49716 Hz, plenty to settle
+        for (int i = 0; i < N; i++) {
+            if (i % 256 == 0) SD_Poll();   // keep AdLib timer ticking
+            short s = sd_pull_opl_sample();
+            long a = (s < 0) ? -(long)s : (long)s;
+            if (a > peak) peak = a;
+            if (s != 0) nonzero++;
+        }
+        printf("test-audio-sfx: SD_PlaySound rc=%d peak=%ld nonzero=%ld/%d\n",
+               rc, peak, nonzero, N);
+        // Pass: SD_PlaySound returned >0 (sound queued) AND OPL produced
+        // a measurable non-zero burst (real signal, not silence floor).
+        printf("test-audio-sfx: %s\n",
+               (rc > 0 && peak > 50 && nonzero > 100) ? "PASS" : "FAIL");
+        Quit(NULL);
+    }
+
     if (MS_CheckParm("test-cutscene-highscore"))
     {
         // Render the high-score table with one slot pre-populated.
