@@ -585,7 +585,7 @@ void SD_Poll(void)
     if (music_active && music_len > 0) {
         while (music_len && (music_next_tick <= music_time)) {
             word w = *music_ptr++;
-            music_next_tick = music_time + *music_ptr++;
+            music_next_tick += *music_ptr++;   // cumulative: add delay to last fire time
             byte reg = w & 0xFF;
             byte val = (w >> 8) & 0xFF;
             OPL3_WriteReg(&opl3, reg, val);
