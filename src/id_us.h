@@ -74,8 +74,6 @@ boolean US_UpdateCursor(void);
 boolean US_LineInput(int x, int y, char *buf, char *def, boolean escok, int maxchars, int maxwidth);
 int  US_CheckParm(char *parm, char **strings);
 boolean US_UserInput(longword ticks);
-void US_CheckHighScore(long score, int other);
-void US_DisplayHighScores(int which);
 void US_DisplaySaving(void);
 void TEDDeath(void);
 

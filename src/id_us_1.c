@@ -398,20 +398,10 @@ boolean US_UserInput(longword ticks)
     return IN_UserInput(ticks);
 }
 
-// ========================================================================
-// High scores (stubs)
-// ========================================================================
-
-void US_CheckHighScore(long score, int other)
-{
-    (void)score;
-    (void)other;
-}
-
-void US_DisplayHighScores(int which)
-{
-    (void)which;
-}
+// Note: Wolf3D's actual high-score handling is implemented as CheckHighScore
+// and DrawHighScores in wl_inter.c (matching the original WL_INTER.C). The
+// US_*HighScore declarations in id_us.h are vestigial from id_us.h's pattern
+// and not part of the active code path.
 
 void US_DisplaySaving(void)
 {
