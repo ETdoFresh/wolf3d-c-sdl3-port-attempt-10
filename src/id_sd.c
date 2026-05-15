@@ -550,10 +550,10 @@ void SD_Poll(void)
     // Rate-limit music events to ~70Hz based on real time
     static Uint64 last_music_ms = 0;
     static long music_accumulator = 0;
-    Uint32 now = SDL_GetTicks();
+    Uint64 now = SDL_GetTicks();
     if (last_music_ms == 0) last_music_ms = now;
 
-    Uint32 elapsed = now - last_music_ms;
+    Uint64 elapsed = now - last_music_ms;
     unsigned music_ticks = 0;
     if (elapsed > 0) {
         music_accumulator += (long)elapsed * TICKS_PER_SEC;
@@ -583,9 +583,9 @@ void SD_Poll(void)
 
     // Tick AdLib SFX at 140Hz (original SDL_ALSoundService cadence).
     if (al_sound) {
-        Uint32 now_sfx = SDL_GetTicks();
+        Uint64 now_sfx = SDL_GetTicks();
         if (al_sfx_last_ms == 0) al_sfx_last_ms = now_sfx;
-        Uint32 sfx_elapsed = now_sfx - al_sfx_last_ms;
+        Uint64 sfx_elapsed = now_sfx - al_sfx_last_ms;
         if (sfx_elapsed > 0) {
             al_sfx_accumulator += (long)sfx_elapsed * SFX_RATE;
             unsigned sfx_ticks = (unsigned)(al_sfx_accumulator / 1000);

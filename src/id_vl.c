@@ -567,9 +567,9 @@ void VL_Present(void)
 
     // Cap at ~70fps
     static Uint64 last_present = 0;
-    Uint32 now = SDL_GetTicks();
+    Uint64 now = SDL_GetTicks();
     if (last_present != 0 && (now - last_present) < 14) {
-        SDL_Delay(14 - (now - last_present));
+        SDL_Delay((Uint32)(14 - (now - last_present)));
     }
     last_present = SDL_GetTicks();
 

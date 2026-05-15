@@ -597,8 +597,8 @@ void IN_SetControlType(int player, ControlType type)
 boolean IN_UserInput(longword delay)
 {
     // delay is in 70Hz ticks; convert to milliseconds for SDL_GetTicks
-    Uint32 ms = (Uint32)delay * 1000u / 70u;
-    Uint32 target = SDL_GetTicks() + ms;
+    Uint64 ms = (Uint64)delay * 1000u / 70u;
+    Uint64 target = SDL_GetTicks() + ms;
 
     IN_StartAck();
 
