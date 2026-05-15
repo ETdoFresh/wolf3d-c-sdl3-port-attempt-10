@@ -16,6 +16,10 @@
 statobj_t	statobjlist[MAXSTATS],*laststatobj;
 
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
 struct
 {
 	int		picnum;
@@ -113,6 +117,9 @@ struct
 {SPR_STAT_26,bo_clip2},			// Clip            "
 {-1}							// terminator
 };
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 /*
 ===============
@@ -148,6 +155,7 @@ void SpawnStatic (int tilex, int tiley, int type)
 	{
 	case block:
 		actorat[tilex][tiley] = 1;		// consider it a blocking tile
+		/* fall through */
 	case dressing:
 		laststatobj->flags = 0;
 		break;
@@ -159,13 +167,14 @@ void SpawnStatic (int tilex, int tiley, int type)
 	case	bo_fullheal:
 		if (!loadedgame)
 		  gamestate.treasuretotal++;
-
+		/* fall through */
 	case	bo_firstaid:
 	case	bo_key1:
 	case	bo_key2:
 	case	bo_key3:
 	case	bo_key4:
 	case	bo_clip:
+	case	bo_clip2:
 	case	bo_25clip:
 	case	bo_machinegun:
 	case	bo_chaingun:
@@ -175,6 +184,10 @@ void SpawnStatic (int tilex, int tiley, int type)
 	case	bo_spear:
 		laststatobj->flags = FL_BONUS;
 		laststatobj->itemnumber = statinfo[type].type;
+		break;
+
+	default:
+		laststatobj->flags = 0;
 		break;
 	}
 
@@ -209,7 +222,7 @@ void PlaceItemType (int itemtype, int tilex, int tiley)
 	{
 		if (statinfo[type].picnum == -1)		// end of list
 			Quit ("PlaceItemType: couldn't find type!");
-		if (statinfo[type].type == itemtype)
+		if ((int)statinfo[type].type == itemtype)
 			break;
 	}
 
@@ -629,7 +642,7 @@ void DoorClosing (int door)
 	tilex = doorobjlist[door].tilex;
 	tiley = doorobjlist[door].tiley;
 
-	if ( (actorat[tilex][tiley] != (door | 0x80))
+	if ( (actorat[tilex][tiley] != (uintptr_t)(door | 0x80))
 	|| (player->tilex == tilex && player->tiley == tiley) )
 	{			// something got inside the door
 		OpenDoor (door);
@@ -709,6 +722,9 @@ void MoveDoors (void)
 
 		case dr_closing:
 			DoorClosing(door);
+			break;
+
+		case dr_closed:
 			break;
 		}
 	}

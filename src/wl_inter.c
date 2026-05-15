@@ -5,6 +5,25 @@
 #include "id_heads.h"
 #include "wl_def.h"
 
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wchar-subscripts"
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+#endif
+/* itoa/ltoa/ultoa are non-standard; provide portable equivalents */
+#ifndef _WIN32
+#include <stdio.h>
+static inline char *itoa(int val, char *buf, int base) {
+    if (base == 10) { sprintf(buf, "%d", val); } return buf;
+}
+static inline char *ltoa(long val, char *buf, int base) {
+    if (base == 10) { sprintf(buf, "%ld", val); } return buf;
+}
+static inline char *ultoa(unsigned long val, char *buf, int base) {
+    if (base == 10) { sprintf(buf, "%lu", val); } return buf;
+}
+#endif
+
 
 //==========================================================================
 

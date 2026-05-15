@@ -527,7 +527,8 @@ void CA_Startup(void)
 
             audiostarts = (longword *)malloc(num_entries * sizeof(longword));
             if (audiostarts) {
-                fread(audiostarts, sizeof(longword), num_entries, f);
+                size_t nr = fread(audiostarts, sizeof(longword), num_entries, f);
+                if (nr != num_entries) memset(audiostarts, 0, num_entries * sizeof(longword));
             }
             fclose(f);
         }
@@ -717,7 +718,8 @@ void CA_CacheAudioChunk(int chunk)
     if (!audiosegs[chunk]) return;
 
     fseek(ca_audiofile, (long)offset, SEEK_SET);
-    fread(audiosegs[chunk], 1, (size_t)length, ca_audiofile);
+    { size_t nr = fread(audiosegs[chunk], 1, (size_t)length, ca_audiofile);
+      if (nr != (size_t)length) memset(audiosegs[chunk], 0, (size_t)length); }
 }
 
 void CA_LoadAllSounds(void)

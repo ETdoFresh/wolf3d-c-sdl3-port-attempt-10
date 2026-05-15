@@ -1117,7 +1117,7 @@ void DrawPlayerWeapon (void)
 	}
 #endif
 
-	if (gamestate.weapon != -1)
+	if ((int)gamestate.weapon != -1)
 	{
 		shapenum = weaponscale[gamestate.weapon]+gamestate.weaponframe;
 		SimpleScaleShape(viewwidth/2,shapenum,viewheight+1);

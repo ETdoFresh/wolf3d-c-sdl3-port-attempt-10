@@ -3,6 +3,13 @@
 #include "id_heads.h"
 #include "wl_def.h"
 
+#ifdef __GNUC__
+/* Original Wolf3D switch statements intentionally omit many enum values. */
+#pragma GCC diagnostic ignored "-Wswitch"
+/* abs() on byte-promoted-to-int expressions is correct; GCC's warning is spurious. */
+#pragma GCC diagnostic ignored "-Wabsolute-value"
+#endif
+
 /*
 =============================================================================
 

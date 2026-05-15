@@ -3,6 +3,10 @@
 
 #include "wl_def.h"
 
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wunused-result"
+#endif
+
 #include <SDL3/SDL.h>
 #include <sys/stat.h>
 
@@ -69,7 +73,7 @@ fixed           scale, maxslope;
 long            heightnumerator;
 int             minheightdiv;
 
-boolean         startgame, loadedgame, virtualreality;
+boolean         startgame, virtualreality;
 int             mouseadjustment;
 int             LastDemo;          // attract-mode demo rotation index
 

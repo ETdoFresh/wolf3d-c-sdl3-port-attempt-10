@@ -4,6 +4,21 @@
 #include "id_heads.h"
 #include "wl_def.h"
 
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wswitch"
+#pragma GCC diagnostic ignored "-Wabsolute-value"
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
+
+/* ltoa is not available on POSIX; use snprintf instead */
+#ifndef _WIN32
+static inline char *ltoa(long val, char *buf, int base) {
+    if (base == 10) snprintf(buf, 20, "%ld", val);
+    return buf;
+}
+#endif
+
 /*
 =============================================================================
 

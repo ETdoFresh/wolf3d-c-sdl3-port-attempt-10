@@ -6,6 +6,17 @@
 #include "wl_def.h"
 #include <SDL3/SDL.h>
 
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wswitch"
+#pragma GCC diagnostic ignored "-Wchar-subscripts"
+#pragma GCC diagnostic ignored "-Wparentheses"
+#pragma GCC diagnostic ignored "-Wdangling-else"
+#pragma GCC diagnostic ignored "-Wmissing-braces"
+#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+#pragma GCC diagnostic ignored "-Wunused-result"
+#pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
+
 //
 // PRIVATE PROTOTYPES
 //
@@ -40,8 +51,8 @@ CP_itemtype MainMenu[] =
     {1, STR_NG, CP_NewGame},
     {1, STR_SD, CP_Sound},
     {1, STR_CL, CP_Control},
-    {1, STR_LG, CP_LoadGame},
-    {0, STR_SG, CP_SaveGame},
+    {1, STR_LG, (void(*)(int))CP_LoadGame},
+    {0, STR_SG, (void(*)(int))CP_SaveGame},
     {1, STR_CV, CP_ChangeView},
     {1, STR_VS, CP_ViewScores},
     {1, STR_BD, 0},
@@ -2860,7 +2871,7 @@ void StartCPMusic(int song)
         mmerror = false;
     else
     {
-        MM_SetLock(&((memptr)audiosegs[STARTMUSIC + chunk]), true);
+        { memptr p = (memptr)audiosegs[STARTMUSIC + chunk]; MM_SetLock(&p, true); }
         SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC + chunk]);
     }
 }

@@ -4,6 +4,12 @@
 #include "id_heads.h"
 #include "wl_def.h"
 
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wswitch"
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
+
 void A_DeathScream(objtype *ob);
 
 /*

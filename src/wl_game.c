@@ -3,6 +3,10 @@
 
 #include "wl_def.h"
 
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+#endif
+
 /*
 =============================================================================
 

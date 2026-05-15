@@ -12,6 +12,12 @@
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
+#ifdef _WIN32
+#  define wolf_stricmp _stricmp
+#else
+#  include <strings.h>
+#  define wolf_stricmp strcasecmp
+#endif
 
 #include <SDL3/SDL.h>
 
@@ -389,7 +395,7 @@ boolean US_LineInput(int x, int y, char *buf, char *def, boolean escok,
         VL_Present();
 
         if (LastScan == sc_Return) {
-            if (buf) strncpy(buf, s, maxchars), buf[maxchars] = 0;
+            if (buf) { memcpy(buf, s, (size_t)maxchars); buf[maxchars] = 0; }
             LastScan = sc_None;
             PrintX = oldX; PrintY = oldY;
             return true;
@@ -443,12 +449,12 @@ int US_CheckParm(char *parm, char **strings)
     int i;
     for (i = 0; strings[i] != NULL; i++) {
         // Direct match
-        if (_stricmp(parm, strings[i]) == 0) {
+        if (wolf_stricmp(parm, strings[i]) == 0) {
             return i;
         }
         // Match with leading '-' or '/'
         if (parm[0] == '-' || parm[0] == '/') {
-            if (_stricmp(parm + 1, strings[i]) == 0) {
+            if (wolf_stricmp(parm + 1, strings[i]) == 0) {
                 return i;
             }
         }

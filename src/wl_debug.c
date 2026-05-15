@@ -1,4 +1,8 @@
 // WL_DEBUG.C - Debug keys and cheat codes
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 // Ported from original WOLFSRC/WL_DEBUG.C to C11/SDL3
 //
 // Changes from original:

@@ -1018,8 +1018,9 @@ void StopMusic(void)
 	for (i = 0;i < LASTMUSIC;i++)
 		if (audiosegs[STARTMUSIC + i])
 		{
-			MM_SetPurge(&((memptr)audiosegs[STARTMUSIC + i]),3);
-			MM_SetLock(&((memptr)audiosegs[STARTMUSIC + i]),false);
+			memptr p = (memptr)audiosegs[STARTMUSIC + i];
+			MM_SetPurge(&p,3);
+			MM_SetLock(&p,false);
 		}
 }
 
@@ -1051,7 +1052,7 @@ void StartMusic(void)
 		mmerror = false;
 	else
 	{
-		MM_SetLock(&((memptr)audiosegs[STARTMUSIC + chunk]),true);
+		{ memptr p = (memptr)audiosegs[STARTMUSIC + chunk]; MM_SetLock(&p,true); }
 		SD_StartMusic((MusicGroup *)audiosegs[STARTMUSIC + chunk]);
 	}
 }
