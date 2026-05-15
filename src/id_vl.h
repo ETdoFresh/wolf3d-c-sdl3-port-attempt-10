@@ -65,8 +65,6 @@ void VL_MemToScreen(byte *source, int dest, int width, int height);
 void VL_MaskedToScreen(byte *source, int dest, int width, int height);
 
 // Text/font
-void VL_DrawTile8String(char *str, byte *tile8ptr, int scan);
-void VL_DrawLatch8String(char *str, int tile8ptr, int scan);
 void VL_SizeTile8String(char *str, int *width, int *height);
 void VL_DrawPropString(char *str, int basex);
 void VL_SizePropString(char *str, int *width, int *height);

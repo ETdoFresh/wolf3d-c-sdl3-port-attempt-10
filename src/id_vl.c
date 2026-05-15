@@ -526,21 +526,9 @@ void VL_MaskedToScreen(byte *source, int dest, int width, int height)
     }
 }
 
-// ========================================================================
-// Text / font stubs
-// ========================================================================
-
-void VL_DrawTile8String(char *str, byte *tile8ptr, int scan)
-{
-    // Original drew 8x8 tile characters at (bufferofs + scan).
-    // Stub: not yet implemented for SDL3 port.
-    (void)str; (void)tile8ptr; (void)scan;
-}
-
-void VL_DrawLatch8String(char *str, int tile8ptr, int scan)
-{
-    (void)str; (void)tile8ptr; (void)scan;
-}
+// Note: original Wolf3D had VL_DrawTile8String/VL_DrawLatch8String for 8x8
+// tile-character text rendering, used only by debug routines. The port has
+// no callers for either; declarations removed from id_vl.h.
 
 void VL_SizeTile8String(char *str, int *width, int *height)
 {
