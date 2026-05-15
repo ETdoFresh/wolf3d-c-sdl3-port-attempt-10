@@ -37,9 +37,9 @@ if(MSVC)
     endif()
 else()
     target_compile_options(wolf3d PRIVATE -Wall -Wextra -Wpedantic -Werror)
-    # Clang (macOS) flags static-in-inline as an error; opl3.c uses this pattern intentionally
+    # Clang-specific: suppress warnings that GCC doesn't emit for intentional Wolf3D patterns
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-        target_compile_options(wolf3d PRIVATE -Wno-static-in-inline)
+        target_compile_options(wolf3d PRIVATE -Wno-static-in-inline -Wno-unused-function)
     endif()
 endif()
 
