@@ -241,10 +241,9 @@ void VL_SetSplitScreen(int linenum)
 
 void VL_WaitVBL(int vbls)
 {
-    // Original waited for vertical blank interrupts.
-    // SDL3 has no VBL concept; sleep as approximation.
+    // Original waited for vertical blank interrupts (70Hz VGA mode = ~14ms).
     for (int i = 0; i < vbls; i++)
-        SDL_Delay(1);
+        SDL_Delay(14);
 }
 
 void VL_CrtcStart(int crtc)
